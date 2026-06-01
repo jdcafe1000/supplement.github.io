@@ -1,0 +1,2059 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Storm Damage Supplement Form</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f1117; --surface: #1a1d27; --surface2: #222638;
+    --border: #2e3248; --accent: #f0a500; --accent2: #3b82f6;
+    --text: #e8eaf0; --muted: #7a7f96; --success: #22c55e; --danger: #ef4444; --radius: 10px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding: 0 0 90px; }
+  header { background: var(--surface); border-bottom: 2px solid var(--accent); padding: 18px 24px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+  header h1 { font-size: 1.15rem; font-weight: 700; letter-spacing: 0.02em; color: var(--accent); text-transform: uppercase; }
+  header span { font-family: 'DM Mono', monospace; font-size: 0.75rem; color: var(--muted); }
+  .container { max-width: 820px; margin: 0 auto; padding: 24px 16px; }
+  .job-info { background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 24px; }
+  .job-info input { background: var(--bg); border: 1px solid var(--border); border-radius: 6px; color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 0.9rem; padding: 10px 12px; width: 100%; outline: none; transition: border-color 0.2s; }
+  .job-info input:focus { border-color: var(--accent2); }
+  .job-info input::placeholder { color: var(--muted); }
+  .section { margin-bottom: 20px; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+  .section-header { background: var(--surface2); padding: 14px 18px; cursor: pointer; display: flex; align-items: center; justify-content: space-between; user-select: none; transition: background 0.2s; }
+  .section-header:hover { background: #2a2e45; }
+  .section-title { font-weight: 700; font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--accent); }
+  .section-badge { background: var(--bg); border: 1px solid var(--border); border-radius: 20px; font-size: 0.7rem; font-family: 'DM Mono', monospace; color: var(--muted); padding: 2px 10px; transition: all 0.2s; }
+  .section-badge.filled { background: rgba(34,197,94,0.15); border-color: var(--success); color: var(--success); }
+  .section-arrow { font-size: 0.8rem; color: var(--muted); margin-left: 10px; transition: transform 0.25s; }
+  .section.open .section-arrow { transform: rotate(180deg); }
+  .section-body { display: none; padding: 16px; background: var(--surface); border-top: 1px solid var(--border); }
+  .section.open .section-body { display: block; }
+  .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; align-items: start; }
+  .field-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 10px; align-items: start; }
+  @media (max-width: 560px) { .field-row, .field-row-3 { grid-template-columns: 1fr; } .job-info { grid-template-columns: 1fr; } }
+  .field { display: flex; flex-direction: column; gap: 5px; }
+  .field label { font-size: 0.75rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+  .yn-card { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; display: flex; flex-direction: column; gap: 7px; }
+  .yn-card-label { font-size: 0.75rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+  .field select, .field input[type="text"], .field input[type="number"], .field textarea, .meas-input {
+    background: var(--bg); border: 1px solid var(--border); border-radius: 6px; color: var(--text);
+    font-family: 'DM Sans', sans-serif; font-size: 0.88rem; padding: 9px 12px; outline: none; width: 100%; transition: border-color 0.2s; -webkit-appearance: none;
+  }
+  .meas-input { background: var(--surface); font-size: 0.82rem; padding: 7px 10px; }
+  .meas-input::placeholder { color: var(--muted); font-style: italic; }
+  .meas-input:focus, .field select:focus, .field input:focus, .field textarea:focus { border-color: var(--accent2); }
+  .field select { cursor: pointer; }
+  .field select option { background: #1a1d27; color: var(--text); }
+  .yn-group { display: flex; gap: 6px; }
+  .yn-btn { flex: 1; padding: 8px 0; border: 1px solid var(--border); border-radius: 6px; background: var(--surface2); color: var(--muted); font-family: 'DM Sans', sans-serif; font-size: 0.82rem; font-weight: 600; cursor: pointer; transition: all 0.15s; text-align: center; }
+  .yn-btn.active-yes { background: rgba(34,197,94,0.15); border-color: var(--success); color: var(--success); }
+  .yn-btn.active-no { background: rgba(239,68,68,0.12); border-color: var(--danger); color: var(--danger); }
+  .yn-btn.active-na { background: rgba(122,127,150,0.15); border-color: var(--muted); color: var(--muted); }
+  .divider-label { font-size: 0.72rem; font-weight: 700; color: var(--accent2); text-transform: uppercase; letter-spacing: 0.1em; margin: 14px 0 8px; padding-bottom: 5px; border-bottom: 1px solid var(--border); }
+  .field textarea { resize: vertical; min-height: 70px; }
+  .action-bar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--surface); border-top: 2px solid var(--border); padding: 10px 14px; display: flex; gap: 8px; justify-content: flex-start; z-index: 100; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+  .action-bar::-webkit-scrollbar { display: none; }
+  .btn { padding: 11px 18px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-weight: 700; font-size: 0.82rem; cursor: pointer; border: none; letter-spacing: 0.03em; transition: all 0.15s; white-space: nowrap; flex-shrink: 0; }
+  .btn-primary { background: var(--accent); color: #000; }
+  .btn-primary:hover { background: #f8b800; transform: translateY(-1px); }
+  .btn-secondary { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
+  .btn-secondary:hover { background: #2a2e45; }
+  .btn-export { background: var(--accent2); color: #fff; }
+  .btn-export:hover { background: #2563eb; }
+  #toast { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background: var(--success); color: #000; font-weight: 700; font-size: 0.82rem; padding: 10px 20px; border-radius: 20px; opacity: 0; pointer-events: none; transition: opacity 0.3s; z-index: 200; }
+  #toast.show { opacity: 1; }
+  .progress-bar { height: 3px; background: var(--border); margin-bottom: 24px; border-radius: 2px; overflow: hidden; }
+  .progress-fill { height: 100%; background: var(--accent); border-radius: 2px; transition: width 0.3s; }
+
+  /* ── Photo Sections ── */
+  .photo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); gap: 8px; margin-top: 10px; }
+  .photo-thumb { position: relative; aspect-ratio: 1; border-radius: 8px; overflow: hidden; background: var(--surface2); border: 1px solid var(--border); }
+  .photo-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .photo-thumb .del-btn { position: absolute; top: 3px; right: 3px; background: rgba(239,68,68,0.85); border: none; border-radius: 50%; width: 22px; height: 22px; color: #fff; font-size: 13px; line-height: 22px; text-align: center; cursor: pointer; padding: 0; }
+  .photo-thumb .photo-label { position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.6); font-size: 0.58rem; color: #fff; padding: 2px 4px; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .photo-take-btn { display: flex; align-items: center; gap: 7px; background: var(--surface2); border: 1px dashed var(--accent2); border-radius: 8px; color: var(--accent2); font-family: 'DM Sans', sans-serif; font-size: 0.82rem; font-weight: 600; padding: 9px 14px; cursor: pointer; width: 100%; margin-top: 8px; }
+  .photo-take-btn:active { opacity: 0.7; }
+  .photo-count-badge { font-family: 'DM Mono', monospace; font-size: 0.7rem; background: rgba(59,130,246,0.2); border: 1px solid var(--accent2); color: var(--accent2); border-radius: 20px; padding: 2px 8px; margin-left: auto; }
+  .elevation-tabs { display: flex; gap: 6px; margin-bottom: 14px; flex-wrap: wrap; }
+  .elev-tab { flex: 1; min-width: 70px; padding: 9px 4px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface2); color: var(--muted); font-family: 'DM Sans', sans-serif; font-size: 0.8rem; font-weight: 700; cursor: pointer; text-align: center; transition: all 0.15s; }
+  .elev-tab.active { background: rgba(59,130,246,0.15); border-color: var(--accent2); color: var(--accent2); }
+  .elev-panel { display: none; }
+  .elev-panel.active { display: block; }
+  .photo-subheader { font-size: 0.72rem; font-weight: 700; color: var(--accent2); text-transform: uppercase; letter-spacing: 0.08em; margin: 12px 0 6px; padding-bottom: 4px; border-bottom: 1px solid var(--border); }
+  /* Gallery modal */
+  #gallery-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.92); z-index: 500; flex-direction: column; align-items: center; justify-content: center; }
+  #gallery-modal.open { display: flex; }
+  #gallery-img { max-width: 94vw; max-height: 75vh; border-radius: 10px; object-fit: contain; }
+  #gallery-caption { color: #fff; font-size: 0.85rem; margin-top: 10px; text-align: center; }
+  #gallery-nav { display: flex; gap: 20px; margin-top: 14px; }
+  .gal-btn { background: var(--surface2); border: 1px solid var(--border); color: var(--text); border-radius: 8px; padding: 10px 22px; font-family: 'DM Sans', sans-serif; font-weight: 700; cursor: pointer; font-size: 0.9rem; }
+  #gallery-close { position: absolute; top: 18px; right: 18px; background: none; border: none; color: #fff; font-size: 1.6rem; cursor: pointer; line-height: 1; }
+  .zip-btn { background: #7c3aed; color: #fff; }
+  .zip-btn:hover { background: #6d28d9; }
+  .btn-sheets { background: #16a34a; color: #fff; }
+  .btn-sheets:hover { background: #15803d; }
+</style>
+</head>
+<body>
+<header>
+  <h1>⚡ Storm Supplement</h1>
+  <span id="progress-label">0% complete</span>
+</header>
+<div class="container">
+  <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+
+  <!-- JOB INFO -->
+  <div class="job-info">
+    <input type="text" id="ji_address" placeholder="Property Address">
+    <input type="text" id="ji_city" placeholder="City, State, ZIP">
+    <input type="text" id="ji_insured" placeholder="Insured Name">
+    <input type="text" id="ji_claim" placeholder="Claim #">
+    <input type="text" id="ji_inspector" placeholder="Inspector Name">
+    <input type="text" id="ji_date" placeholder="Inspection Date">
+  </div>
+
+  <!-- ═══ ROOF ═══ -->
+  <div class="section open" id="sec-roof">
+    <div class="section-header" data-section="sec-roof">
+      <span class="section-title">🏠 Roof</span>
+      <div style="display:flex;align-items:center;gap:8px"><span class="section-badge" id="badge-sec-roof">—</span><span class="section-arrow">▼</span></div>
+    </div>
+    <div class="section-body">
+
+      <div class="divider-label">Roof Type</div>
+      <div class="field-row">
+        <div class="field">
+          <label>Shingle / Surface Type</label>
+          <select id="r_type" id="r_type_sel">
+            <option value="">Select...</option>
+            <optgroup label="Asphalt Shingle">
+              <option>3-Tab</option>
+              <option>Architectural</option>
+              <option>High Grade 40</option>
+              <option>High Grade 50</option>
+              <option>Class 4 Impact</option>
+              <option>Designer</option>
+            </optgroup>
+            <optgroup label="Metal">
+              <option>Metal - Standing Seam</option>
+              <option>Metal - R-Panel</option>
+              <option>Metal - Agricultural</option>
+              <option>Metal - Stone Coated Steel</option>
+              <option>Metal - Stamped</option>
+            </optgroup>
+            <optgroup label="Flat / Low Slope">
+              <option>Mod Bit</option>
+              <option>EPDM</option>
+              <option>TPO</option>
+              <option>Vinyl</option>
+              <option>Coating</option>
+              <option>Roll Roofing</option>
+            </optgroup>
+            <optgroup label="Specialty">
+              <option>Clay Tile</option>
+              <option>Concrete Tile</option>
+              <option>Slate</option>
+              <option>Wood Shake</option>
+            </optgroup>
+          </select>
+        </div>
+        <div class="field" id="metal_gauge_field" style="display:none;">
+          <label>Metal Gauge</label>
+          <select id="r_metal_gauge">
+            <option value="">Select...</option>
+            <option>22 Gauge</option>
+            <option>24 Gauge</option>
+            <option>26 Gauge</option>
+            <option>28 Gauge</option>
+            <option>29 Gauge</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="divider-label">Structure</div>
+      <div class="field-row">
+        <div class="field">
+          <label>Stories</label>
+          <select id="r_stories">
+            <option value="">Select...</option>
+            <option>1-Story</option><option>2-Story</option><option>Split Level</option>
+          </select>
+        </div>
+        <div class="yn-card">
+          <span class="yn-card-label">Difficult Access?</span>
+          <div class="yn-group">
+            <button class="yn-btn" data-field="r_access" data-val="Yes">Yes</button>
+            <button class="yn-btn" data-field="r_access" data-val="No">No</button>
+          </div>
+          <input type="hidden" id="r_access">
+          <input class="meas-input" id="r_access_m" type="text" placeholder="Describe (steep, height, obstruction)">
+        </div>
+      </div>
+
+      <div class="divider-label">Cornice / Fascia</div>
+      <div class="field-row">
+        <div class="yn-card">
+          <span class="yn-card-label">Gable Cornice Returns?</span>
+          <div class="yn-group">
+            <button class="yn-btn" data-field="r_gcr" data-val="Yes">Yes</button>
+            <button class="yn-btn" data-field="r_gcr" data-val="No">No</button>
+            <button class="yn-btn" data-field="r_gcr" data-val="N/A">N/A</button>
+          </div>
+          <input type="hidden" id="r_gcr">
+          <input class="meas-input" id="r_gcr_m" type="text" placeholder="Count / LF">
+        </div>
+        <div class="yn-card">
+          <span class="yn-card-label">Cornice Strip?</span>
+          <div class="yn-group">
+            <button class="yn-btn" data-field="r_corstrip" data-val="Yes">Yes</button>
+            <button class="yn-btn" data-field="r_corstrip" data-val="No">No</button>
+          </div>
+          <input type="hidden" id="r_corstrip">
+          <input class="meas-input" id="r_corstrip_m" type="text" placeholder="LF measurement">
+        </div>
+        <div class="yn-card">
+          <span class="yn-card-label">Aluminum Fascia?</span>
+          <div class="yn-group">
+            <button class="yn-btn" data-field="r_alfascia" data-val="Yes">Yes</button>
+            <button class="yn-btn" data-field="r_alfascia" data-val="No">No</button>
+          </div>
+          <input type="hidden" id="r_alfascia">
+          <input class="meas-input" id="r_alfascia_m" type="text" placeholder="LF / height">
+        </div>
+        <div class="yn-card">
+          <span class="yn-card-label">Turret Cap Custom Bent?</span>
+          <div class="yn-group">
+            <button class="yn-btn" data-field="r_turret" data-val="Yes">Yes</button>
+            <button class="yn-btn" data-field="r_turret" data-val="No">No</button>
+          </div>
+          <input type="hidden" id="r_turret">
+          <input class="meas-input" id="r_turret_m" type="text" placeholder="Count / size">
+        </div>
+      </div>
+
+      <div class="divider-label">Drip Edge</div>
+      <div class="field-row">
+        <div class="field">
+          <label>Drip Edge Type</label>
+          <select id="r_drip">
+            <option value="">Select...</option>
+            <option>Standard Drip Edge</option><option>Gutter Apron</option><option>None</option>
+          </select>
+        </div>
+        <div class="yn-card">
+          <span class="yn-card-label">Drip Edge Painted?</span>
+          <div class="yn-group">
+            <button class="yn-btn" data-field="r_drip_paint" data-val="Yes">Yes</button>
+            <button class="yn-btn" data-field="r_drip_paint" data-val="No">No</button>
+          </div>
+          <input type="hidden" id="r_drip_paint">
+          <input class="meas-input" id="r_drip_paint_m" type="text" placeholder="LF / notes">
+        </div>
+      </div>
+
+      <div class="divider-label">Underlayment</div>
+      <div class="field-row">
+        <div class="field">
+          <label>Underlayment Type</label>
+          <select id="r_under">
+            <option value="">Select...</option>
+            <option>15 LB Felt</option><option>30 LB Felt</option><option>Synthetic</option>
+          </select>
+        </div>
+        <div class="field">
+          <label># of Layers</label>
+          <select id="r_layers">
+            <option value="">Select...</option>
+            <option>1</option><option>2</option><option>3+</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="divider-label">Pitch (all 4 sides)</div>
+      <div class="field-row">
+        <div class="field"><label>Front Pitch</label>
+          <select id="r_pitch_f"><option value="">Select...</option>
+            <option>Flat</option><option>2/12</option><option>3/12</option><option>4/12</option><option>5/12</option>
+            <option>6/12</option><option>7/12</option><option>8/12</option><option>9/12</option><option>10/12</option><option>12/12</option>
+          </select>
+        </div>
+        <div class="field"><label>Rear Pitch</label>
+          <select id="r_pitch_r"><option value="">Select...</option>
+            <option>Flat</option><option>2/12</option><option>3/12</option><option>4/12</option><option>5/12</option>
+            <option>6/12</option><option>7/12</option><option>8/12</option><option>9/12</option><option>10/12</option><option>12/12</option>
+          </select>
+        </div>
+        <div class="field"><label>Left Pitch</label>
+          <select id="r_pitch_l"><option value="">Select...</option>
+            <option>Flat</option><option>2/12</option><option>3/12</option><option>4/12</option><option>5/12</option>
+            <option>6/12</option><option>7/12</option><option>8/12</option><option>9/12</option><option>10/12</option><option>12/12</option>
+          </select>
+        </div>
+        <div class="field"><label>Right Pitch</label>
+          <select id="r_pitch_rt"><option value="">Select...</option>
+            <option>Flat</option><option>2/12</option><option>3/12</option><option>4/12</option><option>5/12</option>
+            <option>6/12</option><option>7/12</option><option>8/12</option><option>9/12</option><option>10/12</option><option>12/12</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="divider-label">Valley & Ridge</div>
+      <div class="field-row">
+        <div class="field"><label>Valley Type</label>
+          <select id="r_valley"><option value="">Select...</option>
+            <option>Metal</option><option>Rolled Roofing</option><option>Ice and Water Shield</option><option>Woven</option><option>None</option>
+          </select>
+        </div>
+        <div class="field"><label>Hip & Ridge Type</label>
+          <select id="r_ridge"><option value="">Select...</option>
+            <option>Regular 3-Tab</option><option>High-Profile</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="divider-label">Metal Panel</div>
+      <div class="field-row">
+        <div class="yn-card">
+          <span class="yn-card-label">Metal Panel Present?</span>
+          <div class="yn-group">
+            <button class="yn-btn" data-field="r_metal" data-val="Yes">Yes</button>
+            <button class="yn-btn" data-field="r_metal" data-val="No">No</button>
+          </div>
+          <input type="hidden" id="r_metal">
+          <input class="meas-input" id="r_metal_m" type="text" placeholder="SF / LF measurement">
+        </div>
+        <div class="field"><label>Metal Panel Material</label>
+          <select id="r_metal_type"><option value="">Select...</option>
+            <option>Standard Metal</option><option>Copper</option><option>Aluminum</option><option>Steel</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="divider-label">Flashing</div>
+      <div class="field-row">
+        <div class="yn-card">
+          <span class="yn-card-label">Step Flashing</span>
+          <div class="yn-group">
+            <button class="yn-btn" data-field="r_step" data-val="Yes">Yes</button>
+            <button class="yn-btn" data-field="r_step" data-val="No">No</button>
+          </div>
+          <input type="hidden" id="r_step">
+          <input class="meas-input" id="r_step_m" type="text" placeholder="LF measurement">
+        </div>
+        <div class="yn-card">
+          <span class="yn-card-label">Counter Flashing</span>
+          <div class="yn-group">
+            <button class="yn-btn" data-field="r_counter" data-val="Yes">Yes</button>
+            <button class="yn-btn" data-field="r_counter" data-val="No">No</button>
+          </div>
+          <input type="hidden" id="r_counter">
+          <input class="meas-input" id="r_counter_m" type="text" placeholder="LF measurement">
+        </div>
+        <div class="yn-card">
+          <span class="yn-card-label">Cap Flashing</span>
+          <div class="yn-group">
+            <button class="yn-btn" data-field="r_cap" data-val="Yes">Yes</button>
+            <button class="yn-btn" data-field="r_cap" data-val="No">No</button>
+          </div>
+          <input type="hidden" id="r_cap">
+          <input class="meas-input" id="r_cap_m" type="text" placeholder="LF measurement">
+        </div>
+        <div class="yn-card">
+          <span class="yn-card-label">Rain Diverters</span>
+          <div class="yn-group">
+            <button class="yn-btn" data-field="r_rainDiv" data-val="Yes">Yes</button>
+            <button class="yn-btn" data-field="r_rainDiv" data-val="No">No</button>
+          </div>
+          <input type="hidden" id="r_rainDiv">
+          <input class="meas-input" id="r_rainDiv_m" type="text" placeholder="Count / LF">
+        </div>
+      </div>
+
+      <div class="divider-label">Vents</div>
+      <div class="field-row">
+        <div class="yn-card">
+          <span class="yn-card-label">Ridge Vents</span>
+          <div class="yn-group">
+            <button class="yn-btn" data-field="r_ridgeVent" data-val="Yes">Yes</button>
+            <button class="yn-btn" data-field="r_ridgeVent" data-val="No">No</button>
+          </div>
+          <input type="hidden" id="r_ridgeVent">
+          <input class="meas-input" id="r_ridgeVent_m" type="text" placeholder="LF">
+        </div>
+        <div class="yn-card">
+          <span class="yn-card-label">Intake Vent - Shingle Over</span>
+          <div class="yn-group">
+            <button class="yn-btn" data-field="r_intake" data-val="Yes">Yes</button>
+            <button class="yn-btn" data-field="r_intake" data-val="No">No</button>
+          </div>
+          <input type="hidden" id="r_intake">
+          <input class="meas-input" id="r_intake_m" type="text" placeholder="LF / count">
+        </div>
+        <div class="field"><label>Turbines — Count</label>
+          <select id="r_turbines"><option value="">Select...</option>
+            <option>0</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5+</option>
+          </select>
+        </div>
+        <div class="field"><label>Turtle Vents — Count</label>
+          <select id="r_turtle"><option value="">Select...</option>
+            <option>0</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6+</option>
+          </select>
+        </div>
+        <div class="field"><label>Exhaust Caps — Count</label>
+          <select id="r_exhaust"><option value="">Select...</option>
+            <option>0</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5+</option>
+          </select>
+        </div>
+        <div class="field"><label>Power Attic Vents</label>
+          <select id="r_pav"><option value="">Select...</option>
+            <option>None</option><option>Electric</option><option>Cover Only</option><option>Solar</option>
+          </select>
+        </div>
+        <div class="yn-card">
+          <span class="yn-card-label">Dryer Vent</span>
+          <div class="yn-group">
+            <button class="yn-btn" data-field="r_dryer" data-val="Yes">Yes</button>
+            <button class="yn-btn" data-field="r_dryer" data-val="No">No</button>
+          </div>
+          <input type="hidden" id="r_dryer">
+          <input class="meas-input" id="r_dryer_m" type="text" placeholder="Count / notes">
+        </div>
+        <div class="yn-card">
+          <span class="yn-card-label">Other Vent / Misc Pipes</span>
+          <div class="yn-group">
+            <button class="yn-btn" data-field="r_otherVent" data-val="Yes">Yes</button>
+            <button class="yn-btn" data-field="r_otherVent" data-val="No">No</button>
+          </div>
+          <input type="hidden" id="r_otherVent">
+          <input class="meas-input" id="r_otherVent_m" type="text" placeholder="Count / description">
+        </div>
+      </div>
+
+      <div class="divider-label">Pipe Jacks</div>
+      <div class="field-row">
+        <div class="field"><label>Pipe Jack Type</label>
+          <select id="r_pj_type"><option value="">Select...</option>
+            <option>Lead</option><option>3-in-1</option><option>Painted</option><option>Mix</option>
+          </select>
+        </div>
+        <div class="field"><label>Pipe Jack Count</label>
+          <select id="r_pj_count"><option value="">Select...</option>
+            <option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6+</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="divider-label">Skylights</div>
+      <div class="field-row">
+        <div class="yn-card">
+          <span class="yn-card-label">Skylight Present?</span>
+          <div class="yn-group">
+            <button class="yn-btn" data-field="r_sky" data-val="Yes">Yes</button>
+            <button class="yn-btn" data-field="r_sky" data-val="No">No</button>
+          </div>
+          <input type="hidden" id="r_sky">
+          <input class="meas-input" id="r_sky_m" type="text" placeholder='Count / size (e.g. 2x 24"x36")'>
+        </div>
+        <div class="yn-card">
+          <span class="yn-card-label">Skylight Cracked?</span>
+          <div class="yn-group">
+            <button class="yn-btn" data-field="r_sky_crack" data-val="Yes">Yes</button>
+            <button class="yn-btn" data-field="r_sky_crack" data-val="No">No</button>
+            <button class="yn-btn" data-field="r_sky_crack" data-val="N/A">N/A</button>
+          </div>
+          <input type="hidden" id="r_sky_crack">
+          <input class="meas-input" id="r_sky_crack_m" type="text" placeholder="How many cracked">
+        </div>
+        <div class="yn-card">
+          <span class="yn-card-label">Skylight Flashing</span>
+          <div class="yn-group">
+            <button class="yn-btn" data-field="r_sky_flash" data-val="Yes">Yes</button>
+            <button class="yn-btn" data-field="r_sky_flash" data-val="No">No</button>
+            <button class="yn-btn" data-field="r_sky_flash" data-val="N/A">N/A</button>
+          </div>
+          <input type="hidden" id="r_sky_flash">
+          <input class="meas-input" id="r_sky_flash_m" type="text" placeholder="LF / count">
+        </div>
+        <div class="yn-card">
+          <span class="yn-card-label">Reflective Tubes?</span>
+          <div class="yn-group">
+            <button class="yn-btn" data-field="r_tubes" data-val="Yes">Yes</button>
+            <button class="yn-btn" data-field="r_tubes" data-val="No">No</button>
+          </div>
+          <input type="hidden" id="r_tubes">
+          <input class="meas-input" id="r_tubes_m" type="text" placeholder="Count / diameter">
+        </div>
+      </div>
+
+      <div class="divider-label">Solar / Satellite</div>
+      <div class="field-row">
+        <div class="yn-card">
+          <span class="yn-card-label">Solar Panels?</span>
+          <div class="yn-group">
+            <button class="yn-btn" data-field="r_solar" data-val="Yes">Yes</button>
+            <button class="yn-btn" data-field="r_solar" data-val="No">No</button>
+          </div>
+          <input type="hidden" id="r_solar">
+          <input class="meas-input" id="r_solar_sqft" type="text" placeholder="Approx SF / panel count">
+        </div>
+        <div class="yn-card">
+          <span class="yn-card-label">Satellite Dish?</span>
+          <div class="yn-group">
+            <button class="yn-btn" data-field="r_sat" data-val="Yes">Yes</button>
+            <button class="yn-btn" data-field="r_sat" data-val="No">No</button>
+          </div>
+          <input type="hidden" id="r_sat">
+          <input class="meas-input" id="r_sat_m" type="text" placeholder="Count / size">
+        </div>
+        <div class="yn-card">
+          <span class="yn-card-label">Flat Roof / Pergola?</span>
+          <div class="yn-group">
+            <button class="yn-btn" data-field="r_flat" data-val="Yes">Yes</button>
+            <button class="yn-btn" data-field="r_flat" data-val="No">No</button>
+          </div>
+          <input type="hidden" id="r_flat">
+          <input class="meas-input" id="r_flat_m" type="text" placeholder="SF measurement">
+        </div>
+      </div>
+
+      <div class="divider-label">Chimney</div>
+      <div class="field-row">
+        <div class="yn-card">
+          <span class="yn-card-label">Chimney Flashing</span>
+          <div class="yn-group">
+            <button class="yn-btn" data-field="r_chim_fl" data-val="Yes">Yes</button>
+            <button class="yn-btn" data-field="r_chim_fl" data-val="No">No</button>
+          </div>
+          <input type="hidden" id="r_chim_fl">
+          <input class="meas-input" id="r_chim_fl_m" type="text" placeholder="LF / notes">
+        </div>
+        <div class="yn-card">
+          <span class="yn-card-label">Chimney Chase</span>
+          <div class="yn-group">
+            <button class="yn-btn" data-field="r_chim_ch" data-val="Yes">Yes</button>
+            <button class="yn-btn" data-field="r_chim_ch" data-val="No">No</button>
+          </div>
+          <input type="hidden" id="r_chim_ch">
+          <input class="meas-input" id="r_chim_ch_m" type="text" placeholder="Size / material">
+        </div>
+        <div class="yn-card">
+          <span class="yn-card-label">Chimney Flue Cap</span>
+          <div class="yn-group">
+            <button class="yn-btn" data-field="r_chim_fc" data-val="Yes">Yes</button>
+            <button class="yn-btn" data-field="r_chim_fc" data-val="No">No</button>
+          </div>
+          <input type="hidden" id="r_chim_fc">
+          <input class="meas-input" id="r_chim_fc_m" type="text" placeholder="Count / size">
+        </div>
+        <div class="yn-card">
+          <span class="yn-card-label">Chimney Shroud</span>
+          <div class="yn-group">
+            <button class="yn-btn" data-field="r_chim_sh" data-val="Yes">Yes</button>
+            <button class="yn-btn" data-field="r_chim_sh" data-val="No">No</button>
+          </div>
+          <input type="hidden" id="r_chim_sh">
+          <input class="meas-input" id="r_chim_sh_m" type="text" placeholder="Size / notes">
+        </div>
+      </div>
+
+      <div class="divider-label">Interior / Attic</div>
+      <div class="field-row">
+        <div class="yn-card">
+          <span class="yn-card-label">Interior Leak Damage?</span>
+          <div class="yn-group">
+            <button class="yn-btn" data-field="r_int" data-val="Yes">Yes</button>
+            <button class="yn-btn" data-field="r_int" data-val="No">No</button>
+          </div>
+          <input type="hidden" id="r_int">
+          <input class="meas-input" id="r_int_m" type="text" placeholder="Rooms affected / SF">
+        </div>
+        <div class="yn-card">
+          <span class="yn-card-label">Content Removal Needed?</span>
+          <div class="yn-group">
+            <button class="yn-btn" data-field="r_content" data-val="Yes">Yes</button>
+            <button class="yn-btn" data-field="r_content" data-val="No">No</button>
+          </div>
+          <input type="hidden" id="r_content">
+          <input class="meas-input" id="r_content_m" type="text" placeholder="Rooms / items description">
+        </div>
+        <div class="yn-card">
+          <span class="yn-card-label">Gas Lines Near Decking?</span>
+          <div class="yn-group">
+            <button class="yn-btn" data-field="r_gas" data-val="Yes">Yes</button>
+            <button class="yn-btn" data-field="r_gas" data-val="No">No</button>
+          </div>
+          <input type="hidden" id="r_gas">
+          <input class="meas-input" id="r_gas_m" type="text" placeholder="Location / notes">
+        </div>
+        <div class="yn-card">
+          <span class="yn-card-label">AC Pipes Near Decking?</span>
+          <div class="yn-group">
+            <button class="yn-btn" data-field="r_acpipes" data-val="Yes">Yes</button>
+            <button class="yn-btn" data-field="r_acpipes" data-val="No">No</button>
+          </div>
+          <input type="hidden" id="r_acpipes">
+          <input class="meas-input" id="r_acpipes_m" type="text" placeholder="Location / notes">
+        </div>
+        <div class="yn-card">
+          <span class="yn-card-label">Roofing Permit Required?</span>
+          <div class="yn-group">
+            <button class="yn-btn" data-field="r_permit" data-val="Yes">Yes</button>
+            <button class="yn-btn" data-field="r_permit" data-val="No">No</button>
+          </div>
+          <input type="hidden" id="r_permit">
+          <input class="meas-input" id="r_permit_m" type="text" placeholder="Jurisdiction / notes">
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══ EXTERIOR - SIDING & WALLS ═══ -->
+  <div class="section" id="sec-exterior">
+    <div class="section-header" data-section="sec-exterior">
+      <span class="section-title">🧱 Exterior – Siding &amp; Walls</span>
+      <div style="display:flex;align-items:center;gap:8px"><span class="section-badge" id="badge-sec-exterior">—</span><span class="section-arrow">▼</span></div>
+    </div>
+    <div class="section-body">
+      <div class="field-row">
+        <div class="yn-card">
+          <span class="yn-card-label">Siding Damage?</span>
+          <div class="yn-group">
+            <button class="yn-btn" data-field="ext_siding" data-val="Yes">Yes</button>
+            <button class="yn-btn" data-field="ext_siding" data-val="No">No</button>
+          </div>
+          <input type="hidden" id="ext_siding">
+          <input class="meas-input" id="ext_siding_m" type="text" placeholder="SF / material type">
+        </div>
+        <div class="yn-card">
+          <span class="yn-card-label">Stucco Damage?</span>
+          <div class="yn-group">
+            <button class="yn-btn" data-field="ext_stucco" data-val="Yes">Yes</button>
+            <button class="yn-btn" data-field="ext_stucco" data-val="No">No</button>
+          </div>
+          <input type="hidden" id="ext_stucco">
+          <input class="meas-input" id="ext_stucco_m" type="text" placeholder="SF measurement">
+        </div>
+        <div class="yn-card">
+          <span class="yn-card-label">Aluminum Window Wraps?</span>
+          <div class="yn-group">
+            <button class="yn-btn" data-field="ext_winwrap" data-val="Yes">Yes</button>
+            <button class="yn-btn" data-field="ext_winwrap" data-val="No">No</button>
+          </div>
+          <input type="hidden" id="ext_winwrap">
+          <input class="meas-input" id="ext_winwrap_m" type="text" placeholder="Count / LF">
+        </div>
+        <div class="yn-card">
+          <span class="yn-card-label">Awning Damage?</span>
+          <div class="yn-group">
+            <button class="yn-btn" data-field="ext_awning" data-val="Yes">Yes</button>
+            <button class="yn-btn" data-field="ext_awning" data-val="No">No</button>
+          </div>
+          <input type="hidden" id="ext_awning">
+          <input class="meas-input" id="ext_awning_m" type="text" placeholder="Count / size / material">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ WINDOWS & GLASS ═══ -->
+  <div class="section" id="sec-windows">
+    <div class="section-header" data-section="sec-windows">
+      <span class="section-title">🪟 Windows &amp; Glass</span>
+      <div style="display:flex;align-items:center;gap:8px"><span class="section-badge" id="badge-sec-windows">—</span><span class="section-arrow">▼</span></div>
+    </div>
+    <div class="section-body">
+      <div class="field-row">
+        <div class="yn-card">
+          <span class="yn-card-label">Window Frame Damage?</span>
+          <div class="yn-group">
+            <button class="yn-btn" data-field="win_frame" data-val="Yes">Yes</button>
+            <button class="yn-btn" data-field="win_frame" data-val="No">No</button>
+          </div>
+          <input type="hidden" id="win_frame">
+          <input class="meas-input" id="win_frame_m" type="text" placeholder="Count / notes">
+        </div>
+        <div class="field">
+          <label>Window Frame Material</label>
+          <select id="win_frame_mat">
+            <option value="">Select...</option>
+            <option>Vinyl</option><option>Metal / Aluminum</option><option>Wood</option><option>Composite</option><option>Mix</option>
+          </select>
+        </div>
+        <div class="yn-card">
+          <span class="yn-card-label">Glass Broken / Cracked?</span>
+          <div class="yn-group">
+            <button class="yn-btn" data-field="win_glass" data-val="Yes">Yes</button>
+            <button class="yn-btn" data-field="win_glass" data-val="No">No</button>
+          </div>
+          <input type="hidden" id="win_glass">
+          <input class="meas-input" id="win_glass_m" type="text" placeholder="Count / size">
+        </div>
+        <div class="yn-card">
+          <span class="yn-card-label">Screens Damaged?</span>
+          <div class="yn-group">
+            <button class="yn-btn" data-field="sc_solar" data-val="Yes">Yes</button>
+            <button class="yn-btn" data-field="sc_solar" data-val="No">No</button>
+          </div>
+          <input type="hidden" id="sc_solar">
+          <input class="meas-input" id="sc_solar_m" type="text" placeholder="Solar screen count / SF">
+        </div>
+        <div class="yn-card">
+          <span class="yn-card-label">Regular Screens?</span>
+          <div class="yn-group">
+            <button class="yn-btn" data-field="sc_reg" data-val="Yes">Yes</button>
+            <button class="yn-btn" data-field="sc_reg" data-val="No">No</button>
+          </div>
+          <input type="hidden" id="sc_reg">
+          <input class="meas-input" id="sc_reg_m" type="text" placeholder="Count / SF">
+        </div>
+        <div class="field"><label>Total Screen Count (approx)</label>
+          <select id="sc_count"><option value="">Select...</option>
+            <option>1-5</option><option>6-10</option><option>11-15</option><option>16-20</option><option>21+</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ GUTTERS ═══ -->
+  <div class="section" id="sec-gutter">
+    <div class="section-header" data-section="sec-gutter">
+      <span class="section-title">🌧 Gutters</span>
+      <div style="display:flex;align-items:center;gap:8px"><span class="section-badge" id="badge-sec-gutter">—</span><span class="section-arrow">▼</span></div>
+    </div>
+    <div class="section-body">
+      <div class="field-row">
+        <div class="yn-card">
+          <span class="yn-card-label">Gutters Present?</span>
+          <div class="yn-group">
+            <button class="yn-btn" data-field="g_present" data-val="Yes">Yes</button>
+            <button class="yn-btn" data-field="g_present" data-val="No">No</button>
+          </div>
+          <input type="hidden" id="g_present">
+          <input class="meas-input" id="g_present_m" type="text" placeholder="LF measurement">
+        </div>
+        <div class="yn-card">
+          <span class="yn-card-label">Connected to Drip Edge?</span>
+          <div class="yn-group">
+            <button class="yn-btn" data-field="g_drip" data-val="Yes">Yes</button>
+            <button class="yn-btn" data-field="g_drip" data-val="No">No</button>
+          </div>
+          <input type="hidden" id="g_drip">
+          <input class="meas-input" id="g_drip_m" type="text" placeholder="Notes">
+        </div>
+        <div class="field"><label>Gutter Size</label>
+          <select id="g_size"><option value="">Select...</option>
+            <option>4"</option><option>5"</option><option>6"</option>
+          </select>
+        </div>
+        <div class="field"><label>Gutter Material</label>
+          <select id="g_material"><option value="">Select...</option>
+            <option>Aluminum</option><option>Steel</option><option>Copper</option><option>Vinyl</option>
+          </select>
+        </div>
+        <div class="yn-card">
+          <span class="yn-card-label">Downspouts Present?</span>
+          <div class="yn-group">
+            <button class="yn-btn" data-field="g_ds" data-val="Yes">Yes</button>
+            <button class="yn-btn" data-field="g_ds" data-val="No">No</button>
+          </div>
+          <input type="hidden" id="g_ds">
+          <input class="meas-input" id="g_ds_m" type="text" placeholder="Count / LF">
+        </div>
+        <div class="field"><label>Downspout Count</label>
+          <select id="g_ds_count"><option value="">Select...</option>
+            <option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6+</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ STAIN / WOOD ═══ -->
+  <div class="section" id="sec-stain">
+    <div class="section-header" data-section="sec-stain">
+      <span class="section-title">🪵 Stain / Wood</span>
+      <div style="display:flex;align-items:center;gap:8px"><span class="section-badge" id="badge-sec-stain">—</span><span class="section-arrow">▼</span></div>
+    </div>
+    <div class="section-body">
+      <div class="field-row">
+        <div class="yn-card">
+          <span class="yn-card-label">Deck?</span>
+          <div class="yn-group">
+            <button class="yn-btn" data-field="st_deck" data-val="Yes">Yes</button>
+            <button class="yn-btn" data-field="st_deck" data-val="No">No</button>
+          </div>
+          <input type="hidden" id="st_deck">
+          <input class="meas-input" id="st_deck_m" type="text" placeholder="SF measurement">
+        </div>
+        <div class="yn-card">
+          <span class="yn-card-label">Storm Shutters?</span>
+          <div class="yn-group">
+            <button class="yn-btn" data-field="st_shutters" data-val="Yes">Yes</button>
+            <button class="yn-btn" data-field="st_shutters" data-val="No">No</button>
+          </div>
+          <input type="hidden" id="st_shutters">
+          <input class="meas-input" id="st_shutters_m" type="text" placeholder="Count / SF">
+        </div>
+        <div class="yn-card">
+          <span class="yn-card-label">Wooden Beams?</span>
+          <div class="yn-group">
+            <button class="yn-btn" data-field="st_beams" data-val="Yes">Yes</button>
+            <button class="yn-btn" data-field="st_beams" data-val="No">No</button>
+          </div>
+          <input type="hidden" id="st_beams">
+          <input class="meas-input" id="st_beams_m" type="text" placeholder="Count / LF">
+        </div>
+        <div class="yn-card">
+          <span class="yn-card-label">Fence?</span>
+          <div class="yn-group">
+            <button class="yn-btn" data-field="st_fence" data-val="Yes">Yes</button>
+            <button class="yn-btn" data-field="st_fence" data-val="No">No</button>
+          </div>
+          <input type="hidden" id="st_fence">
+          <input class="meas-input" id="st_fence_m" type="text" placeholder="LF x height (e.g. 80LF x 6ft)">
+        </div>
+        <div class="yn-card">
+          <span class="yn-card-label">Wooden Overhead Door?</span>
+          <div class="yn-group">
+            <button class="yn-btn" data-field="st_wdoor" data-val="Yes">Yes</button>
+            <button class="yn-btn" data-field="st_wdoor" data-val="No">No</button>
+          </div>
+          <input type="hidden" id="st_wdoor">
+          <input class="meas-input" id="st_wdoor_m" type="text" placeholder="Count / size (e.g. 2x 9x7)">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ AC / OTHER ═══ -->
+  <div class="section" id="sec-ac">
+    <div class="section-header" data-section="sec-ac">
+      <span class="section-title">❄️ AC / Other</span>
+      <div style="display:flex;align-items:center;gap:8px"><span class="section-badge" id="badge-sec-ac">—</span><span class="section-arrow">▼</span></div>
+    </div>
+    <div class="section-body">
+      <div class="field-row">
+        <div class="yn-card">
+          <span class="yn-card-label">AC Unit Damage?</span>
+          <div class="yn-group">
+            <button class="yn-btn" data-field="ac_dmg" data-val="Yes">Yes</button>
+            <button class="yn-btn" data-field="ac_dmg" data-val="No">No</button>
+          </div>
+          <input type="hidden" id="ac_dmg">
+          <input class="meas-input" id="ac_dmg_m" type="text" placeholder="Unit count / tons">
+        </div>
+        <div class="yn-card">
+          <span class="yn-card-label">AC Fins Damaged?</span>
+          <div class="yn-group">
+            <button class="yn-btn" data-field="ac_fins" data-val="Yes">Yes</button>
+            <button class="yn-btn" data-field="ac_fins" data-val="No">No</button>
+          </div>
+          <input type="hidden" id="ac_fins">
+          <input class="meas-input" id="ac_fins_m" type="text" placeholder="% damage / notes">
+        </div>
+        <div class="yn-card">
+          <span class="yn-card-label">AC Fan Guard Damaged?</span>
+          <div class="yn-group">
+            <button class="yn-btn" data-field="ac_fan" data-val="Yes">Yes</button>
+            <button class="yn-btn" data-field="ac_fan" data-val="No">No</button>
+          </div>
+          <input type="hidden" id="ac_fan">
+          <input class="meas-input" id="ac_fan_m" type="text" placeholder="Count / notes">
+        </div>
+        <div class="yn-card">
+          <span class="yn-card-label">Light Fixtures Damaged?</span>
+          <div class="yn-group">
+            <button class="yn-btn" data-field="oth_light" data-val="Yes">Yes</button>
+            <button class="yn-btn" data-field="oth_light" data-val="No">No</button>
+          </div>
+          <input type="hidden" id="oth_light">
+          <input class="meas-input" id="oth_light_m" type="text" placeholder="Count / type">
+        </div>
+        <div class="yn-card">
+          <span class="yn-card-label">Aluminum Garage Door?</span>
+          <div class="yn-group">
+            <button class="yn-btn" data-field="oth_garage" data-val="Yes">Yes</button>
+            <button class="yn-btn" data-field="oth_garage" data-val="No">No</button>
+          </div>
+          <input type="hidden" id="oth_garage">
+          <input class="meas-input" id="oth_garage_m" type="text" placeholder="Count / size (e.g. 2x 16x7)">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ POOL ═══ -->
+  <div class="section" id="sec-pool">
+    <div class="section-header" data-section="sec-pool">
+      <span class="section-title">🏊 Pool</span>
+      <div style="display:flex;align-items:center;gap:8px"><span class="section-badge" id="badge-sec-pool">—</span><span class="section-arrow">▼</span></div>
+    </div>
+    <div class="section-body">
+      <div class="field-row">
+        <div class="yn-card">
+          <span class="yn-card-label">Pool Deck Coating?</span>
+          <div class="yn-group">
+            <button class="yn-btn" data-field="pool_deck" data-val="Yes">Yes</button>
+            <button class="yn-btn" data-field="pool_deck" data-val="No">No</button>
+          </div>
+          <input type="hidden" id="pool_deck">
+          <input class="meas-input" id="pool_deck_m" type="text" placeholder="SF measurement">
+        </div>
+        <div class="yn-card">
+          <span class="yn-card-label">Pool Coping Damage?</span>
+          <div class="yn-group">
+            <button class="yn-btn" data-field="pool_coping" data-val="Yes">Yes</button>
+            <button class="yn-btn" data-field="pool_coping" data-val="No">No</button>
+          </div>
+          <input type="hidden" id="pool_coping">
+          <input class="meas-input" id="pool_coping_m" type="text" placeholder="LF measurement">
+        </div>
+        <div class="yn-card">
+          <span class="yn-card-label">Pool Equipment Damaged?</span>
+          <div class="yn-group">
+            <button class="yn-btn" data-field="pool_equip" data-val="Yes">Yes</button>
+            <button class="yn-btn" data-field="pool_equip" data-val="No">No</button>
+          </div>
+          <input type="hidden" id="pool_equip">
+          <input class="meas-input" id="pool_equip_m" type="text" placeholder="Pump, heater, filter - describe">
+        </div>
+        <div class="yn-card">
+          <span class="yn-card-label">Pool Expansion Strip (plastic)?</span>
+          <div class="yn-group">
+            <button class="yn-btn" data-field="pool_strip" data-val="Yes">Yes</button>
+            <button class="yn-btn" data-field="pool_strip" data-val="No">No</button>
+          </div>
+          <input type="hidden" id="pool_strip">
+          <input class="meas-input" id="pool_strip_m" type="text" placeholder="LF measurement">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ OTHER STRUCTURES ═══ -->
+  <div class="section" id="sec-structures">
+    <div class="section-header" data-section="sec-structures">
+      <span class="section-title">🏗 Other Structures</span>
+      <div style="display:flex;align-items:center;gap:8px"><span class="section-badge" id="badge-sec-structures">—</span><span class="section-arrow">▼</span></div>
+    </div>
+    <div class="section-body">
+      <div class="field-row">
+        <div class="yn-card">
+          <span class="yn-card-label">Shed?</span>
+          <div class="yn-group">
+            <button class="yn-btn" data-field="str_shed" data-val="Yes">Yes</button>
+            <button class="yn-btn" data-field="str_shed" data-val="No">No</button>
+          </div>
+          <input type="hidden" id="str_shed">
+          <input class="meas-input" id="str_shed_m" type="text" placeholder="Size / roof type / damage">
+        </div>
+        <div class="yn-card">
+          <span class="yn-card-label">Detached Garage?</span>
+          <div class="yn-group">
+            <button class="yn-btn" data-field="str_garage" data-val="Yes">Yes</button>
+            <button class="yn-btn" data-field="str_garage" data-val="No">No</button>
+          </div>
+          <input type="hidden" id="str_garage">
+          <input class="meas-input" id="str_garage_m" type="text" placeholder="Size / roof type / damage">
+        </div>
+        <div class="yn-card">
+          <span class="yn-card-label">Cabana?</span>
+          <div class="yn-group">
+            <button class="yn-btn" data-field="str_cabana" data-val="Yes">Yes</button>
+            <button class="yn-btn" data-field="str_cabana" data-val="No">No</button>
+          </div>
+          <input type="hidden" id="str_cabana">
+          <input class="meas-input" id="str_cabana_m" type="text" placeholder="Size / damage notes">
+        </div>
+        <div class="yn-card">
+          <span class="yn-card-label">Barn?</span>
+          <div class="yn-group">
+            <button class="yn-btn" data-field="str_barn" data-val="Yes">Yes</button>
+            <button class="yn-btn" data-field="str_barn" data-val="No">No</button>
+          </div>
+          <input type="hidden" id="str_barn">
+          <input class="meas-input" id="str_barn_m" type="text" placeholder="Size / roof type / damage">
+        </div>
+        <div class="yn-card">
+          <span class="yn-card-label">Other Structure?</span>
+          <div class="yn-group">
+            <button class="yn-btn" data-field="str_other" data-val="Yes">Yes</button>
+            <button class="yn-btn" data-field="str_other" data-val="No">No</button>
+          </div>
+          <input type="hidden" id="str_other">
+          <input class="meas-input" id="str_other_m" type="text" placeholder="Describe structure / damage">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ PERSONAL PROPERTY ═══ -->
+  <div class="section" id="sec-personal">
+    <div class="section-header" data-section="sec-personal">
+      <span class="section-title">🪑 Personal Property</span>
+      <div style="display:flex;align-items:center;gap:8px"><span class="section-badge" id="badge-sec-personal">—</span><span class="section-arrow">▼</span></div>
+    </div>
+    <div class="section-body">
+      <div class="field-row">
+        <div class="yn-card">
+          <span class="yn-card-label">Patio Furniture?</span>
+          <div class="yn-group">
+            <button class="yn-btn" data-field="pp_patio" data-val="Yes">Yes</button>
+            <button class="yn-btn" data-field="pp_patio" data-val="No">No</button>
+          </div>
+          <input type="hidden" id="pp_patio">
+          <input class="meas-input" id="pp_patio_m" type="text" placeholder="Count / description">
+        </div>
+        <div class="yn-card">
+          <span class="yn-card-label">Grill?</span>
+          <div class="yn-group">
+            <button class="yn-btn" data-field="pp_grill" data-val="Yes">Yes</button>
+            <button class="yn-btn" data-field="pp_grill" data-val="No">No</button>
+          </div>
+          <input type="hidden" id="pp_grill">
+          <input class="meas-input" id="pp_grill_m" type="text" placeholder="Type / notes">
+        </div>
+        <div class="yn-card">
+          <span class="yn-card-label">Landscape Art / Decor?</span>
+          <div class="yn-group">
+            <button class="yn-btn" data-field="pp_landscape" data-val="Yes">Yes</button>
+            <button class="yn-btn" data-field="pp_landscape" data-val="No">No</button>
+          </div>
+          <input type="hidden" id="pp_landscape">
+          <input class="meas-input" id="pp_landscape_m" type="text" placeholder="Count / description">
+        </div>
+        <div class="yn-card">
+          <span class="yn-card-label">Playground Equipment?</span>
+          <div class="yn-group">
+            <button class="yn-btn" data-field="pp_play" data-val="Yes">Yes</button>
+            <button class="yn-btn" data-field="pp_play" data-val="No">No</button>
+          </div>
+          <input type="hidden" id="pp_play">
+          <input class="meas-input" id="pp_play_m" type="text" placeholder="Description / damage">
+        </div>
+        <div class="yn-card">
+          <span class="yn-card-label">Other Personal Property?</span>
+          <div class="yn-group">
+            <button class="yn-btn" data-field="pp_other" data-val="Yes">Yes</button>
+            <button class="yn-btn" data-field="pp_other" data-val="No">No</button>
+          </div>
+          <input type="hidden" id="pp_other">
+          <input class="meas-input" id="pp_other_m" type="text" placeholder="Describe items / damage">
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- PHOTO SECTIONS -->
+
+  <!-- Roof Photos -->
+  <div class="section" id="sec-photos-roof">
+    <div class="section-header" data-section="sec-photos-roof">
+      <span class="section-title">📷 Roof Photos</span>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span class="section-badge" id="badge-photos-roof">0 photos</span>
+        <span class="section-arrow">▼</span>
+      </div>
+    </div>
+    <div class="section-body">
+      <p style="font-size:0.78rem;color:var(--muted);margin-bottom:12px;">Take multiple photos of each item. Chalk dents before shooting.</p>
+
+      <div class="photo-subheader">Overview</div>
+      <button class="photo-take-btn" data-label="Roof Overview" data-section="roof"><span>📷</span> Roof Overview <span class="photo-count-badge" id="cnt-Roof Overview">0</span></button>
+
+      <div class="photo-subheader">Shingles & Surface</div>
+      <button class="photo-take-btn" data-label="Shingle Damage" data-section="roof"><span>📷</span> Shingle Damage <span class="photo-count-badge" id="cnt-Shingle Damage">0</span></button>
+      <button class="photo-take-btn" data-label="Hail Spatter" data-section="roof"><span>📷</span> Hail Spatter <span class="photo-count-badge" id="cnt-Hail Spatter">0</span></button>
+
+      <div class="photo-subheader">Edges & Flashing</div>
+      <button class="photo-take-btn" data-label="Drip Edge" data-section="roof"><span>📷</span> Drip Edge <span class="photo-count-badge" id="cnt-Drip Edge">0</span></button>
+      <button class="photo-take-btn" data-label="Step Flashing" data-section="roof"><span>📷</span> Step Flashing <span class="photo-count-badge" id="cnt-Step Flashing">0</span></button>
+      <button class="photo-take-btn" data-label="Counter Flashing" data-section="roof"><span>📷</span> Counter Flashing <span class="photo-count-badge" id="cnt-Counter Flashing">0</span></button>
+      <button class="photo-take-btn" data-label="Valley" data-section="roof"><span>📷</span> Valley <span class="photo-count-badge" id="cnt-Valley">0</span></button>
+      <button class="photo-take-btn" data-label="Ridge / Hip" data-section="roof"><span>📷</span> Ridge / Hip <span class="photo-count-badge" id="cnt-Ridge / Hip">0</span></button>
+
+      <div class="photo-subheader">Vents & Penetrations</div>
+      <button class="photo-take-btn" data-label="Pipe Jacks" data-section="roof"><span>📷</span> Pipe Jacks <span class="photo-count-badge" id="cnt-Pipe Jacks">0</span></button>
+      <button class="photo-take-btn" data-label="Ridge Vents" data-section="roof"><span>📷</span> Ridge Vents <span class="photo-count-badge" id="cnt-Ridge Vents">0</span></button>
+      <button class="photo-take-btn" data-label="Turbines" data-section="roof"><span>📷</span> Turbines <span class="photo-count-badge" id="cnt-Turbines">0</span></button>
+      <button class="photo-take-btn" data-label="Exhaust / Turtle Vents" data-section="roof"><span>📷</span> Exhaust / Turtle Vents <span class="photo-count-badge" id="cnt-Exhaust / Turtle Vents">0</span></button>
+      <button class="photo-take-btn" data-label="Dryer Vent" data-section="roof"><span>📷</span> Dryer Vent <span class="photo-count-badge" id="cnt-Dryer Vent">0</span></button>
+
+      <div class="photo-subheader">Chimney</div>
+      <button class="photo-take-btn" data-label="Chimney Flashing" data-section="roof"><span>📷</span> Chimney Flashing <span class="photo-count-badge" id="cnt-Chimney Flashing">0</span></button>
+      <button class="photo-take-btn" data-label="Chimney Cap / Shroud" data-section="roof"><span>📷</span> Chimney Cap / Shroud <span class="photo-count-badge" id="cnt-Chimney Cap / Shroud">0</span></button>
+
+      <div class="photo-subheader">Skylights & Solar</div>
+      <button class="photo-take-btn" data-label="Skylight" data-section="roof"><span>📷</span> Skylight <span class="photo-count-badge" id="cnt-Skylight">0</span></button>
+      <button class="photo-take-btn" data-label="Solar Panels" data-section="roof"><span>📷</span> Solar Panels <span class="photo-count-badge" id="cnt-Solar Panels">0</span></button>
+
+      <div class="photo-subheader">Attic / Interior</div>
+      <button class="photo-take-btn" data-label="Attic Decking" data-section="roof"><span>📷</span> Attic Decking <span class="photo-count-badge" id="cnt-Attic Decking">0</span></button>
+      <button class="photo-take-btn" data-label="Interior Leak Damage" data-section="roof"><span>📷</span> Interior Leak Damage <span class="photo-count-badge" id="cnt-Interior Leak Damage">0</span></button>
+
+      <div class="photo-subheader">Other Roof Photos</div>
+      <button class="photo-take-btn" data-label="Roof Other" data-section="roof"><span>📷</span> + Add Other Roof Photo <span class="photo-count-badge" id="cnt-Roof Other">0</span></button>
+
+      <div class="photo-grid" id="grid-roof"></div>
+    </div>
+  </div>
+
+  <!-- Ground Photos by Elevation -->
+  <div class="section" id="sec-photos-ground">
+    <div class="section-header" data-section="sec-photos-ground">
+      <span class="section-title">📷 Ground Photos by Elevation</span>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span class="section-badge" id="badge-photos-ground">0 photos</span>
+        <span class="section-arrow">▼</span>
+      </div>
+    </div>
+    <div class="section-body">
+      <p style="font-size:0.78rem;color:var(--muted);margin-bottom:12px;">Walk each elevation and photo everything visible from the ground.</p>
+
+      <div class="elevation-tabs">
+        <button class="elev-tab active" data-elev="front">Front</button>
+        <button class="elev-tab" data-elev="right">Right</button>
+        <button class="elev-tab" data-elev="rear">Rear</button>
+        <button class="elev-tab" data-elev="left">Left</button>
+      </div>
+
+      <!-- FRONT -->
+      <div class="elev-panel active" id="elev-front">
+        <div class="photo-subheader">Front Elevation Overview</div>
+        <button class="photo-take-btn" data-label="Front Elevation" data-section="ground-front"><span>📷</span> Front Elevation <span class="photo-count-badge" id="cnt-Front Elevation">0</span></button>
+        <div class="photo-subheader">Front - Gutters & Fascia</div>
+        <button class="photo-take-btn" data-label="Front Gutters" data-section="ground-front"><span>📷</span> Gutters <span class="photo-count-badge" id="cnt-Front Gutters">0</span></button>
+        <button class="photo-take-btn" data-label="Front Fascia" data-section="ground-front"><span>📷</span> Fascia <span class="photo-count-badge" id="cnt-Front Fascia">0</span></button>
+        <button class="photo-take-btn" data-label="Front Downspouts" data-section="ground-front"><span>📷</span> Downspouts <span class="photo-count-badge" id="cnt-Front Downspouts">0</span></button>
+        <div class="photo-subheader">Front - Windows & Screens</div>
+        <button class="photo-take-btn" data-label="Front Windows" data-section="ground-front"><span>📷</span> Windows / Screens <span class="photo-count-badge" id="cnt-Front Windows">0</span></button>
+        <button class="photo-take-btn" data-label="Front Window Frames" data-section="ground-front"><span>📷</span> Window Frames <span class="photo-count-badge" id="cnt-Front Window Frames">0</span></button>
+        <div class="photo-subheader">Front - Siding & Walls</div>
+        <button class="photo-take-btn" data-label="Front Siding" data-section="ground-front"><span>📷</span> Siding / Stucco <span class="photo-count-badge" id="cnt-Front Siding">0</span></button>
+        <button class="photo-take-btn" data-label="Front Window Wraps" data-section="ground-front"><span>📷</span> Aluminum Window Wraps <span class="photo-count-badge" id="cnt-Front Window Wraps">0</span></button>
+        <div class="photo-subheader">Front - Doors & Garage</div>
+        <button class="photo-take-btn" data-label="Front Door" data-section="ground-front"><span>📷</span> Front Door <span class="photo-count-badge" id="cnt-Front Door">0</span></button>
+        <button class="photo-take-btn" data-label="Garage Door" data-section="ground-front"><span>📷</span> Garage Door <span class="photo-count-badge" id="cnt-Garage Door">0</span></button>
+        <div class="photo-subheader">Front - Other</div>
+        <button class="photo-take-btn" data-label="Front AC Unit" data-section="ground-front"><span>📷</span> AC Unit <span class="photo-count-badge" id="cnt-Front AC Unit">0</span></button>
+        <button class="photo-take-btn" data-label="Front Other" data-section="ground-front"><span>📷</span> + Add Other Front Photo <span class="photo-count-badge" id="cnt-Front Other">0</span></button>
+        <div class="photo-grid" id="grid-ground-front"></div>
+      </div>
+
+      <!-- RIGHT -->
+      <div class="elev-panel" id="elev-right">
+        <div class="photo-subheader">Right Elevation Overview</div>
+        <button class="photo-take-btn" data-label="Right Elevation" data-section="ground-right"><span>📷</span> Right Elevation <span class="photo-count-badge" id="cnt-Right Elevation">0</span></button>
+        <div class="photo-subheader">Right - Gutters & Fascia</div>
+        <button class="photo-take-btn" data-label="Right Gutters" data-section="ground-right"><span>📷</span> Gutters <span class="photo-count-badge" id="cnt-Right Gutters">0</span></button>
+        <button class="photo-take-btn" data-label="Right Fascia" data-section="ground-right"><span>📷</span> Fascia <span class="photo-count-badge" id="cnt-Right Fascia">0</span></button>
+        <button class="photo-take-btn" data-label="Right Downspouts" data-section="ground-right"><span>📷</span> Downspouts <span class="photo-count-badge" id="cnt-Right Downspouts">0</span></button>
+        <div class="photo-subheader">Right - Windows & Screens</div>
+        <button class="photo-take-btn" data-label="Right Windows" data-section="ground-right"><span>📷</span> Windows / Screens <span class="photo-count-badge" id="cnt-Right Windows">0</span></button>
+        <button class="photo-take-btn" data-label="Right Window Frames" data-section="ground-right"><span>📷</span> Window Frames <span class="photo-count-badge" id="cnt-Right Window Frames">0</span></button>
+        <div class="photo-subheader">Right - Siding & Walls</div>
+        <button class="photo-take-btn" data-label="Right Siding" data-section="ground-right"><span>📷</span> Siding / Stucco <span class="photo-count-badge" id="cnt-Right Siding">0</span></button>
+        <button class="photo-take-btn" data-label="Right Window Wraps" data-section="ground-right"><span>📷</span> Aluminum Window Wraps <span class="photo-count-badge" id="cnt-Right Window Wraps">0</span></button>
+        <div class="photo-subheader">Right - Fence & Other</div>
+        <button class="photo-take-btn" data-label="Right Fence" data-section="ground-right"><span>📷</span> Fence <span class="photo-count-badge" id="cnt-Right Fence">0</span></button>
+        <button class="photo-take-btn" data-label="Right AC Unit" data-section="ground-right"><span>📷</span> AC Unit <span class="photo-count-badge" id="cnt-Right AC Unit">0</span></button>
+        <button class="photo-take-btn" data-label="Right Other" data-section="ground-right"><span>📷</span> + Add Other Right Photo <span class="photo-count-badge" id="cnt-Right Other">0</span></button>
+        <div class="photo-grid" id="grid-ground-right"></div>
+      </div>
+
+      <!-- REAR -->
+      <div class="elev-panel" id="elev-rear">
+        <div class="photo-subheader">Rear Elevation Overview</div>
+        <button class="photo-take-btn" data-label="Rear Elevation" data-section="ground-rear"><span>📷</span> Rear Elevation <span class="photo-count-badge" id="cnt-Rear Elevation">0</span></button>
+        <div class="photo-subheader">Rear - Gutters & Fascia</div>
+        <button class="photo-take-btn" data-label="Rear Gutters" data-section="ground-rear"><span>📷</span> Gutters <span class="photo-count-badge" id="cnt-Rear Gutters">0</span></button>
+        <button class="photo-take-btn" data-label="Rear Fascia" data-section="ground-rear"><span>📷</span> Fascia <span class="photo-count-badge" id="cnt-Rear Fascia">0</span></button>
+        <button class="photo-take-btn" data-label="Rear Downspouts" data-section="ground-rear"><span>📷</span> Downspouts <span class="photo-count-badge" id="cnt-Rear Downspouts">0</span></button>
+        <div class="photo-subheader">Rear - Windows & Screens</div>
+        <button class="photo-take-btn" data-label="Rear Windows" data-section="ground-rear"><span>📷</span> Windows / Screens <span class="photo-count-badge" id="cnt-Rear Windows">0</span></button>
+        <button class="photo-take-btn" data-label="Rear Window Frames" data-section="ground-rear"><span>📷</span> Window Frames <span class="photo-count-badge" id="cnt-Rear Window Frames">0</span></button>
+        <div class="photo-subheader">Rear - Siding & Walls</div>
+        <button class="photo-take-btn" data-label="Rear Siding" data-section="ground-rear"><span>📷</span> Siding / Stucco <span class="photo-count-badge" id="cnt-Rear Siding">0</span></button>
+        <button class="photo-take-btn" data-label="Rear Window Wraps" data-section="ground-rear"><span>📷</span> Aluminum Window Wraps <span class="photo-count-badge" id="cnt-Rear Window Wraps">0</span></button>
+        <div class="photo-subheader">Rear - Deck, Pool & Other</div>
+        <button class="photo-take-btn" data-label="Rear Deck" data-section="ground-rear"><span>📷</span> Deck <span class="photo-count-badge" id="cnt-Rear Deck">0</span></button>
+        <button class="photo-take-btn" data-label="Pool Area" data-section="ground-rear"><span>📷</span> Pool Area <span class="photo-count-badge" id="cnt-Pool Area">0</span></button>
+        <button class="photo-take-btn" data-label="Rear Fence" data-section="ground-rear"><span>📷</span> Fence <span class="photo-count-badge" id="cnt-Rear Fence">0</span></button>
+        <button class="photo-take-btn" data-label="Rear AC Unit" data-section="ground-rear"><span>📷</span> AC Unit <span class="photo-count-badge" id="cnt-Rear AC Unit">0</span></button>
+        <button class="photo-take-btn" data-label="Rear Other" data-section="ground-rear"><span>📷</span> + Add Other Rear Photo <span class="photo-count-badge" id="cnt-Rear Other">0</span></button>
+        <div class="photo-grid" id="grid-ground-rear"></div>
+      </div>
+
+      <!-- LEFT -->
+      <div class="elev-panel" id="elev-left">
+        <div class="photo-subheader">Left Elevation Overview</div>
+        <button class="photo-take-btn" data-label="Left Elevation" data-section="ground-left"><span>📷</span> Left Elevation <span class="photo-count-badge" id="cnt-Left Elevation">0</span></button>
+        <div class="photo-subheader">Left - Gutters & Fascia</div>
+        <button class="photo-take-btn" data-label="Left Gutters" data-section="ground-left"><span>📷</span> Gutters <span class="photo-count-badge" id="cnt-Left Gutters">0</span></button>
+        <button class="photo-take-btn" data-label="Left Fascia" data-section="ground-left"><span>📷</span> Fascia <span class="photo-count-badge" id="cnt-Left Fascia">0</span></button>
+        <button class="photo-take-btn" data-label="Left Downspouts" data-section="ground-left"><span>📷</span> Downspouts <span class="photo-count-badge" id="cnt-Left Downspouts">0</span></button>
+        <div class="photo-subheader">Left - Windows & Screens</div>
+        <button class="photo-take-btn" data-label="Left Windows" data-section="ground-left"><span>📷</span> Windows / Screens <span class="photo-count-badge" id="cnt-Left Windows">0</span></button>
+        <button class="photo-take-btn" data-label="Left Window Frames" data-section="ground-left"><span>📷</span> Window Frames <span class="photo-count-badge" id="cnt-Left Window Frames">0</span></button>
+        <div class="photo-subheader">Left - Siding & Walls</div>
+        <button class="photo-take-btn" data-label="Left Siding" data-section="ground-left"><span>📷</span> Siding / Stucco <span class="photo-count-badge" id="cnt-Left Siding">0</span></button>
+        <button class="photo-take-btn" data-label="Left Window Wraps" data-section="ground-left"><span>📷</span> Aluminum Window Wraps <span class="photo-count-badge" id="cnt-Left Window Wraps">0</span></button>
+        <div class="photo-subheader">Left - Fence & Other</div>
+        <button class="photo-take-btn" data-label="Left Fence" data-section="ground-left"><span>📷</span> Fence <span class="photo-count-badge" id="cnt-Left Fence">0</span></button>
+        <button class="photo-take-btn" data-label="Left AC Unit" data-section="ground-left"><span>📷</span> AC Unit <span class="photo-count-badge" id="cnt-Left AC Unit">0</span></button>
+        <button class="photo-take-btn" data-label="Left Other" data-section="ground-left"><span>📷</span> + Add Other Left Photo <span class="photo-count-badge" id="cnt-Left Other">0</span></button>
+        <div class="photo-grid" id="grid-ground-left"></div>
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- AC Unit Photos -->
+  <div class="section" id="sec-photos-ac">
+    <div class="section-header" data-section="sec-photos-ac">
+      <span class="section-title">📷 AC Unit Photos</span>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span class="section-badge" id="badge-photos-ac">0 photos</span>
+        <span class="section-arrow">▼</span>
+      </div>
+    </div>
+    <div class="section-body">
+      <p style="font-size:0.78rem;color:var(--muted);margin-bottom:12px;">Capture the model/serial sticker, fins, fan guard, and any visible damage. Chalk dents on fins before shooting.</p>
+
+      <div class="photo-subheader">Model &amp; Serial</div>
+      <button class="photo-take-btn" data-label="AC Model Sticker" data-section="ac"><span>📷</span> Model / Serial Number Sticker <span class="photo-count-badge" id="cnt-AC Model Sticker">0</span></button>
+
+      <div class="photo-subheader">Unit Overview</div>
+      <button class="photo-take-btn" data-label="AC Unit Overview" data-section="ac"><span>📷</span> AC Unit Overview <span class="photo-count-badge" id="cnt-AC Unit Overview">0</span></button>
+
+      <div class="photo-subheader">Damage</div>
+      <button class="photo-take-btn" data-label="AC Fins Damage" data-section="ac"><span>📷</span> Fins Damage (chalked) <span class="photo-count-badge" id="cnt-AC Fins Damage">0</span></button>
+      <button class="photo-take-btn" data-label="AC Fan Guard" data-section="ac"><span>📷</span> Fan Guard <span class="photo-count-badge" id="cnt-AC Fan Guard">0</span></button>
+      <button class="photo-take-btn" data-label="AC Line Set" data-section="ac"><span>📷</span> Line Set / Disconnect <span class="photo-count-badge" id="cnt-AC Line Set">0</span></button>
+
+      <div class="photo-subheader">Additional Units</div>
+      <button class="photo-take-btn" data-label="AC Unit 2 Sticker" data-section="ac"><span>📷</span> Unit 2 - Model Sticker <span class="photo-count-badge" id="cnt-AC Unit 2 Sticker">0</span></button>
+      <button class="photo-take-btn" data-label="AC Unit 2 Overview" data-section="ac"><span>📷</span> Unit 2 - Overview <span class="photo-count-badge" id="cnt-AC Unit 2 Overview">0</span></button>
+      <button class="photo-take-btn" data-label="AC Other" data-section="ac"><span>📷</span> + Add Other AC Photo <span class="photo-count-badge" id="cnt-AC Other">0</span></button>
+
+      <div class="photo-grid" id="grid-ac"></div>
+    </div>
+  </div>
+
+  <!-- Miscellaneous Photos -->
+  <div class="section" id="sec-photos-misc">
+    <div class="section-header" data-section="sec-photos-misc">
+      <span class="section-title">📷 Miscellaneous Photos</span>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span class="section-badge" id="badge-photos-misc">0 photos</span>
+        <span class="section-arrow">▼</span>
+      </div>
+    </div>
+    <div class="section-body">
+      <p style="font-size:0.78rem;color:var(--muted);margin-bottom:12px;">Anything that doesn't fit a specific category — pool equipment, personal property, other structures, additional damage, etc.</p>
+
+      <div class="photo-subheader">Pool &amp; Outdoor</div>
+      <button class="photo-take-btn" data-label="Pool Equipment" data-section="misc"><span>📷</span> Pool Equipment <span class="photo-count-badge" id="cnt-Pool Equipment">0</span></button>
+      <button class="photo-take-btn" data-label="Pool Coping" data-section="misc"><span>📷</span> Pool Coping <span class="photo-count-badge" id="cnt-Pool Coping">0</span></button>
+      <button class="photo-take-btn" data-label="Pool Deck" data-section="misc"><span>📷</span> Pool Deck <span class="photo-count-badge" id="cnt-Pool Deck">0</span></button>
+      <button class="photo-take-btn" data-label="Patio Furniture Damage" data-section="misc"><span>📷</span> Patio Furniture <span class="photo-count-badge" id="cnt-Patio Furniture Damage">0</span></button>
+      <button class="photo-take-btn" data-label="Grill Damage" data-section="misc"><span>📷</span> Grill <span class="photo-count-badge" id="cnt-Grill Damage">0</span></button>
+      <button class="photo-take-btn" data-label="Playground Equipment" data-section="misc"><span>📷</span> Playground Equipment <span class="photo-count-badge" id="cnt-Playground Equipment">0</span></button>
+
+      <div class="photo-subheader">Other Structures</div>
+      <button class="photo-take-btn" data-label="Shed Damage" data-section="misc"><span>📷</span> Shed <span class="photo-count-badge" id="cnt-Shed Damage">0</span></button>
+      <button class="photo-take-btn" data-label="Detached Garage Damage" data-section="misc"><span>📷</span> Detached Garage <span class="photo-count-badge" id="cnt-Detached Garage Damage">0</span></button>
+      <button class="photo-take-btn" data-label="Fence Damage" data-section="misc"><span>📷</span> Fence Damage (hail circled) <span class="photo-count-badge" id="cnt-Fence Damage">0</span></button>
+
+      <div class="photo-subheader">Miscellaneous</div>
+      <button class="photo-take-btn" data-label="Misc 1" data-section="misc"><span>📷</span> + Add Misc Photo <span class="photo-count-badge" id="cnt-Misc 1">0</span></button>
+      <button class="photo-take-btn" data-label="Misc 2" data-section="misc"><span>📷</span> + Add Misc Photo 2 <span class="photo-count-badge" id="cnt-Misc 2">0</span></button>
+      <button class="photo-take-btn" data-label="Misc 3" data-section="misc"><span>📷</span> + Add Misc Photo 3 <span class="photo-count-badge" id="cnt-Misc 3">0</span></button>
+      <button class="photo-take-btn" data-label="Misc 4" data-section="misc"><span>📷</span> + Add Misc Photo 4 <span class="photo-count-badge" id="cnt-Misc 4">0</span></button>
+      <button class="photo-take-btn" data-label="Misc 5" data-section="misc"><span>📷</span> + Add Misc Photo 5 <span class="photo-count-badge" id="cnt-Misc 5">0</span></button>
+
+      <div class="photo-grid" id="grid-misc"></div>
+    </div>
+  </div>
+
+  <!-- ═══ NOTES ═══ -->
+  <div class="section" id="sec-notes">
+    <div class="section-header" data-section="sec-notes">
+      <span class="section-title">📝 Notes</span>
+      <div style="display:flex;align-items:center;gap:8px"><span class="section-arrow">▼</span></div>
+    </div>
+    <div class="section-body">
+      <div class="field">
+        <label>Additional Notes / Observations</label>
+        <textarea id="notes_main" placeholder="Enter any additional details, measurements, or notes here..."></textarea>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+
+<!-- Gallery Modal -->
+<div id="gallery-modal">
+  <button id="gallery-close">&#x2715;</button>
+  <img id="gallery-img" src="" alt="">
+  <div id="gallery-caption"></div>
+  <div id="gallery-nav">
+    <button class="gal-btn" id="gal-prev">&#8592; Prev</button>
+    <button class="gal-btn" id="gal-next">Next &#8594;</button>
+  </div>
+</div>
+
+<!-- Hidden file input -->
+<input type="file" id="camera-input" accept="image/*" capture="environment" style="display:none">
+
+
+<!-- Submit to Sheets Modal -->
+<div id="sheets-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:600;align-items:center;justify-content:center;">
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:24px;margin:20px;max-width:420px;width:100%;">
+    <h2 style="color:var(--accent);font-size:1rem;font-weight:700;margin-bottom:6px;">Submit to Google Sheets</h2>
+    <p style="font-size:0.8rem;color:var(--muted);margin-bottom:16px;line-height:1.5;">Paste your Google Apps Script Web App URL below. This sends the inspection data directly to your shared sheet.</p>
+    <label style="font-size:0.75rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;">Script URL</label>
+    <input id="sheets-url" type="url" placeholder="https://script.google.com/macros/s/..." style="background:var(--bg);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:0.85rem;padding:10px 12px;width:100%;margin-top:6px;margin-bottom:4px;outline:none;box-sizing:border-box;">
+    <p style="font-size:0.7rem;color:var(--muted);margin-bottom:16px;">This URL is saved in your browser so you only enter it once.</p>
+    <div id="sheets-status" style="font-size:0.8rem;margin-bottom:12px;min-height:20px;"></div>
+    <div style="display:flex;gap:10px;">
+      <button id="sheets-cancel" style="flex:1;padding:11px;border-radius:8px;background:var(--surface2);border:1px solid var(--border);color:var(--text);font-family:'DM Sans',sans-serif;font-weight:700;font-size:0.85rem;cursor:pointer;">Cancel</button>
+      <button id="sheets-send" style="flex:2;padding:11px;border-radius:8px;background:#16a34a;border:none;color:#fff;font-family:'DM Sans',sans-serif;font-weight:700;font-size:0.85rem;cursor:pointer;">Send to Sheet</button>
+    </div>
+    <div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--border);">
+      <p style="font-size:0.72rem;color:var(--muted);line-height:1.6;"><strong style="color:var(--text);">First time setup (5 min):</strong><br>
+      1. Open Google Sheets → Extensions → Apps Script<br>
+      2. Paste the script from the setup guide<br>
+      3. Click Deploy → New deployment → Web app<br>
+      4. Set access to "Anyone" → Deploy → Copy the URL<br>
+      5. Paste it above</p>
+    </div>
+  </div>
+</div>
+
+<div class="action-bar">
+  <button class="btn btn-secondary" id="btn-clear">Clear</button>
+  <button class="btn btn-sheets" id="btn-submit">&#128196; Submit</button>
+  <button class="btn zip-btn" id="btn-gallery">Gallery</button>
+  <button class="btn zip-btn" id="btn-zip">Save ZIP</button>
+  <button class="btn btn-export" id="btn-export">Export CSV</button>
+  <button class="btn btn-primary" id="btn-copy">Copy Report</button>
+</div>
+<div id="toast">✓ Copied to clipboard!</div>
+
+<script>
+// -- Photo store --------------------------------------------------------------
+// photos[section] = [{label, dataUrl, filename}, ...]
+var photos = {};
+
+document.addEventListener('DOMContentLoaded', function() {
+
+  // Section toggles
+  document.querySelectorAll('.section-header[data-section]').forEach(function(header) {
+    header.addEventListener('click', function() {
+      document.getElementById(this.getAttribute('data-section')).classList.toggle('open');
+    });
+  });
+
+  // Yes/No buttons
+  document.querySelectorAll('.yn-btn[data-field]').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var fieldId = this.getAttribute('data-field');
+      var val = this.getAttribute('data-val');
+      this.parentElement.querySelectorAll('.yn-btn').forEach(function(b) {
+        b.classList.remove('active-yes','active-no','active-na');
+      });
+      this.classList.add(val === 'Yes' ? 'active-yes' : val === 'No' ? 'active-no' : 'active-na');
+      var hidden = document.getElementById(fieldId);
+      if (hidden) hidden.value = val;
+      updateProgress();
+    });
+  });
+
+  // Metal gauge show/hide
+  var rtypeSel = document.getElementById('r_type_sel');
+  if (rtypeSel) {
+    rtypeSel.addEventListener('change', function() {
+      var gf = document.getElementById('metal_gauge_field');
+      if (gf) gf.style.display = this.value.startsWith('Metal') ? 'flex' : 'none';
+      updateProgress();
+    });
+  }
+
+  // Date placeholder trick
+  var dateField = document.getElementById('ji_date');
+  if (dateField) {
+    dateField.addEventListener('focus', function() { this.type = 'date'; });
+    dateField.addEventListener('blur', function() { if (!this.value) this.type = 'text'; });
+  }
+
+  // Track all input/select/textarea changes
+  var container = document.querySelector('.container');
+  if (container) {
+    container.addEventListener('input', function() { updateProgress(); });
+    container.addEventListener('change', function() { updateProgress(); });
+  }
+
+  // Elevation tabs
+  document.querySelectorAll('.elev-tab').forEach(function(tab) {
+    tab.addEventListener('click', function() {
+      var elev = this.getAttribute('data-elev');
+      document.querySelectorAll('.elev-tab').forEach(function(t) { t.classList.remove('active'); });
+      document.querySelectorAll('.elev-panel').forEach(function(p) { p.classList.remove('active'); });
+      this.classList.add('active');
+      var panel = document.getElementById('elev-' + elev);
+      if (panel) panel.classList.add('active');
+    });
+  });
+
+  // Photo take buttons
+  var currentPhotoLabel = '';
+  var currentPhotoSection = '';
+  var cameraInput = document.getElementById('camera-input');
+
+  document.querySelectorAll('.photo-take-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      currentPhotoLabel = this.getAttribute('data-label');
+      currentPhotoSection = this.getAttribute('data-section');
+      cameraInput.value = '';
+      cameraInput.click();
+    });
+  });
+
+  if (cameraInput) {
+    cameraInput.addEventListener('change', function() {
+      var file = this.files[0];
+      if (!file) return;
+      var reader = new FileReader();
+      reader.onload = function(e) {
+        var dataUrl = e.target.result;
+        var sec = currentPhotoSection;
+        var label = currentPhotoLabel;
+        if (!photos[sec]) photos[sec] = [];
+        var idx = photos[sec].length;
+        var filename = label.replace(/[^a-z0-9]/gi, '_') + '_' + (idx + 1) + '.jpg';
+        photos[sec].push({ label: label, dataUrl: dataUrl, filename: filename });
+        renderGrid(sec);
+        updatePhotoBadges();
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  // Action buttons
+  var btnClear = document.getElementById('btn-clear');
+  if (btnClear) btnClear.addEventListener('click', clearForm);
+  var btnExport = document.getElementById('btn-export');
+  if (btnExport) btnExport.addEventListener('click', exportCSV);
+  var btnCopy = document.getElementById('btn-copy');
+  if (btnCopy) btnCopy.addEventListener('click', copyReport);
+  var btnGallery = document.getElementById('btn-gallery');
+  if (btnGallery) btnGallery.addEventListener('click', openGallery);
+  var btnZip = document.getElementById('btn-zip');
+  if (btnZip) btnZip.addEventListener('click', downloadZip);
+  var btnSubmit = document.getElementById('btn-submit');
+  if (btnSubmit) btnSubmit.addEventListener('click', openSheetsModal);
+  var sheetsCancel = document.getElementById('sheets-cancel');
+  if (sheetsCancel) sheetsCancel.addEventListener('click', function() { document.getElementById('sheets-modal').style.display = 'none'; });
+  var sheetsSend = document.getElementById('sheets-send');
+  if (sheetsSend) sheetsSend.addEventListener('click', submitToSheets);
+
+  // Gallery modal controls
+  var modal = document.getElementById('gallery-modal');
+  var galleryClose = document.getElementById('gallery-close');
+  if (galleryClose) galleryClose.addEventListener('click', function() { modal.classList.remove('open'); });
+  var galPrev = document.getElementById('gal-prev');
+  if (galPrev) galPrev.addEventListener('click', function() { shiftGallery(-1); });
+  var galNext = document.getElementById('gal-next');
+  if (galNext) galNext.addEventListener('click', function() { shiftGallery(1); });
+
+  updateProgress();
+});
+
+// -- Photo helpers -------------------------------------------------------------
+function renderGrid(sec) {
+  var grid = document.getElementById('grid-' + sec);
+  if (!grid) return;
+  grid.innerHTML = '';
+  var arr = photos[sec] || [];
+  arr.forEach(function(p, i) {
+    var thumb = document.createElement('div');
+    thumb.className = 'photo-thumb';
+    thumb.innerHTML = '<img src="' + p.dataUrl + '" alt="' + p.label + '">' +
+      '<span class="photo-label">' + p.label + '</span>' +
+      '<button class="del-btn" data-sec="' + sec + '" data-idx="' + i + '">x</button>';
+    grid.appendChild(thumb);
+    // Count badge
+    var cnt = document.getElementById('cnt-' + p.label);
+    if (cnt) {
+      var labelCount = arr.filter(function(x) { return x.label === p.label; }).length;
+      cnt.textContent = labelCount;
+    }
+  });
+  // Delete buttons
+  grid.querySelectorAll('.del-btn').forEach(function(btn) {
+    btn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      var s = this.getAttribute('data-sec');
+      var idx = parseInt(this.getAttribute('data-idx'));
+      photos[s].splice(idx, 1);
+      renderGrid(s);
+      updatePhotoBadges();
+    });
+  });
+  // Tap to open gallery
+  grid.querySelectorAll('.photo-thumb img').forEach(function(img, i) {
+    img.addEventListener('click', function() { openGalleryAt(sec, i); });
+  });
+}
+
+function updatePhotoBadges() {
+  // Roof badge
+  var roofCount = (photos['roof'] || []).length;
+  var roofBadge = document.getElementById('badge-photos-roof');
+  if (roofBadge) roofBadge.textContent = roofCount + ' photo' + (roofCount !== 1 ? 's' : '');
+
+  // Ground badge
+  var groundCount = ['ground-front','ground-right','ground-rear','ground-left'].reduce(function(sum, s) {
+    return sum + (photos[s] || []).length;
+  }, 0);
+  var groundBadge = document.getElementById('badge-photos-ground');
+  if (groundBadge) groundBadge.textContent = groundCount + ' photo' + (groundCount !== 1 ? 's' : '');
+
+  // AC badge
+  var acCount = (photos['ac'] || []).length;
+  var acBadge = document.getElementById('badge-photos-ac');
+  if (acBadge) acBadge.textContent = acCount + ' photo' + (acCount !== 1 ? 's' : '');
+
+  // Misc badge
+  var miscCount = (photos['misc'] || []).length;
+  var miscBadge = document.getElementById('badge-photos-misc');
+  if (miscBadge) miscBadge.textContent = miscCount + ' photo' + (miscCount !== 1 ? 's' : '');
+
+  // Update all count badges
+  var allPhotos = [];
+  Object.keys(photos).forEach(function(sec) { allPhotos = allPhotos.concat(photos[sec]); });
+  // Reset all count badges to 0
+  document.querySelectorAll('.photo-count-badge').forEach(function(badge) { badge.textContent = '0'; });
+  // Recount
+  allPhotos.forEach(function(p) {
+    var cnt = document.getElementById('cnt-' + p.label);
+    if (cnt) cnt.textContent = parseInt(cnt.textContent || '0') + 1;
+  });
+}
+
+// -- Gallery -------------------------------------------------------------------
+var galleryAll = [];
+var galleryIdx = 0;
+
+function openGallery() {
+  galleryAll = [];
+  ['roof','ground-front','ground-right','ground-rear','ground-left','ac','misc'].forEach(function(sec) {
+    (photos[sec] || []).forEach(function(p) { galleryAll.push(p); });
+  });
+  if (galleryAll.length === 0) { alert('No photos yet.'); return; }
+  galleryIdx = 0;
+  showGalleryPhoto();
+  document.getElementById('gallery-modal').classList.add('open');
+}
+
+function openGalleryAt(sec, idx) {
+  galleryAll = [];
+  var offset = 0;
+  ['roof','ground-front','ground-right','ground-rear','ground-left'].forEach(function(s) {
+    if (s === sec) offset = galleryAll.length + idx;
+    (photos[s] || []).forEach(function(p) { galleryAll.push(p); });
+  });
+  galleryIdx = offset;
+  showGalleryPhoto();
+  document.getElementById('gallery-modal').classList.add('open');
+}
+
+function showGalleryPhoto() {
+  var p = galleryAll[galleryIdx];
+  if (!p) return;
+  document.getElementById('gallery-img').src = p.dataUrl;
+  document.getElementById('gallery-caption').textContent = p.label + '  (' + (galleryIdx + 1) + ' / ' + galleryAll.length + ')';
+}
+
+function shiftGallery(dir) {
+  galleryIdx = (galleryIdx + dir + galleryAll.length) % galleryAll.length;
+  showGalleryPhoto();
+}
+
+// -- ZIP Download --------------------------------------------------------------
+function downloadZip() {
+  var allPhotos = [];
+  ['roof','ground-front','ground-right','ground-rear','ground-left','ac','misc'].forEach(function(sec) {
+    (photos[sec] || []).forEach(function(p) {
+      allPhotos.push({ filename: sec + '/' + p.filename, dataUrl: p.dataUrl });
+    });
+  });
+
+  if (allPhotos.length === 0) { alert('No photos to download yet.'); return; }
+
+  // Build a simple ZIP manually (store method, no compression)
+  // Each file: local header + data + data descriptor
+  function str2ab(str) {
+    var buf = new Uint8Array(str.length);
+    for (var i = 0; i < str.length; i++) buf[i] = str.charCodeAt(i) & 0xff;
+    return buf;
+  }
+
+  function dataUrlToBytes(dataUrl) {
+    var base64 = dataUrl.split(',')[1];
+    var binary = atob(base64);
+    var bytes = new Uint8Array(binary.length);
+    for (var i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+    return bytes;
+  }
+
+  function crc32(data) {
+    var table = [];
+    for (var i = 0; i < 256; i++) {
+      var c = i;
+      for (var j = 0; j < 8; j++) c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1);
+      table[i] = c;
+    }
+    var crc = 0xFFFFFFFF;
+    for (var k = 0; k < data.length; k++) crc = table[(crc ^ data[k]) & 0xFF] ^ (crc >>> 8);
+    return (crc ^ 0xFFFFFFFF) >>> 0;
+  }
+
+  function uint32LE(n) { return [n & 0xff, (n >> 8) & 0xff, (n >> 16) & 0xff, (n >> 24) & 0xff]; }
+  function uint16LE(n) { return [n & 0xff, (n >> 8) & 0xff]; }
+
+  var localHeaders = [];
+  var centralDir = [];
+  var offset = 0;
+  var parts = [];
+
+  allPhotos.forEach(function(file) {
+    var nameBytes = str2ab(file.filename);
+    var data = dataUrlToBytes(file.dataUrl);
+    var crc = crc32(data);
+    var size = data.length;
+
+    // Local file header
+    var lh = [0x50,0x4B,0x03,0x04, // signature
+      0x14,0x00,         // version needed
+      0x00,0x00,         // flags
+      0x00,0x00,         // compression (store)
+      0x00,0x00,         // mod time
+      0x00,0x00]         // mod date
+      .concat(uint32LE(crc))
+      .concat(uint32LE(size))
+      .concat(uint32LE(size))
+      .concat(uint16LE(nameBytes.length))
+      .concat([0x00,0x00]); // extra length
+
+    var lhBytes = new Uint8Array(lh.concat(Array.from(nameBytes)));
+
+    // Central directory entry
+    var cd = [0x50,0x4B,0x01,0x02,
+      0x14,0x00,0x14,0x00,
+      0x00,0x00,0x00,0x00,
+      0x00,0x00,0x00,0x00]
+      .concat(uint32LE(crc))
+      .concat(uint32LE(size))
+      .concat(uint32LE(size))
+      .concat(uint16LE(nameBytes.length))
+      .concat([0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00])
+      .concat(uint32LE(offset));
+    var cdBytes = new Uint8Array(cd.concat(Array.from(nameBytes)));
+
+    parts.push(lhBytes, data);
+    centralDir.push(cdBytes);
+    offset += lhBytes.length + size;
+  });
+
+  var cdStart = offset;
+  var cdSize = centralDir.reduce(function(s, b) { return s + b.length; }, 0);
+
+  // End of central directory record
+  var eocd = new Uint8Array([0x50,0x4B,0x05,0x06,
+    0x00,0x00,0x00,0x00]
+    .concat(uint16LE(allPhotos.length))
+    .concat(uint16LE(allPhotos.length))
+    .concat(uint32LE(cdSize))
+    .concat(uint32LE(cdStart))
+    .concat([0x00,0x00]));
+
+  // Combine all parts
+  var totalSize = parts.reduce(function(s, p) { return s + p.length; }, 0) + cdSize + eocd.length;
+  var zipData = new Uint8Array(totalSize);
+  var pos = 0;
+  parts.concat(centralDir).concat([eocd]).forEach(function(p) {
+    zipData.set(p, pos);
+    pos += p.length;
+  });
+
+  var blob = new Blob([zipData], { type: 'application/zip' });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  var addr = getVal('ji_address').replace(/[^a-z0-9]/gi, '_').substring(0, 25) || 'inspection';
+  a.href = url;
+  a.download = addr + '_photos.zip';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+// -- Form helpers --------------------------------------------------------------
+function getVal(id) {
+  var el = document.getElementById(id);
+  return el ? (el.value || '') : '';
+}
+
+function m(id) {
+  var v = getVal(id);
+  return v ? ' [' + v + ']' : '';
+}
+
+function updateProgress() {
+  var ids = [
+    'ji_address','ji_insured','ji_date','r_type_sel','r_stories',
+    'r_under','r_valley','r_ridge','r_drip','r_pitch_f','r_pitch_r',
+    'r_gcr','r_corstrip','r_drip_paint','r_metal','r_step','r_counter',
+    'r_ridgeVent','r_turbines','r_turtle','r_pj_type','r_sky',
+    'r_solar','r_sat','r_chim_fl','r_int','r_content','r_permit','r_access',
+    'g_present','g_drip',
+    'ext_siding','ext_stucco','ext_winwrap',
+    'win_frame','win_glass','sc_solar','sc_reg',
+    'st_deck','st_fence',
+    'ac_dmg','ac_fins','ac_fan',
+    'pool_deck','pool_coping','pool_equip','pool_strip',
+    'str_shed','str_garage',
+    'pp_patio','pp_grill'
+  ];
+  var filled = ids.filter(function(id) { return getVal(id) !== ''; }).length;
+  var pct = Math.round(filled / ids.length * 100);
+  var fill = document.getElementById('progressFill');
+  if (fill) fill.style.width = pct + '%';
+  var label = document.getElementById('progress-label');
+  if (label) label.textContent = pct + '% complete';
+
+  updateBadge('sec-roof', ['r_type_sel','r_stories','r_under','r_valley','r_ridge','r_drip','r_pitch_f','r_pitch_r','r_gcr','r_corstrip','r_drip_paint','r_metal','r_step','r_counter','r_ridgeVent','r_turbines','r_pj_type','r_sky','r_chim_fl','r_int','r_content','r_permit','r_access']);
+  updateBadge('sec-exterior', ['ext_siding','ext_stucco','ext_winwrap','ext_awning']);
+  updateBadge('sec-windows', ['win_frame','win_glass','sc_solar','sc_reg']);
+  updateBadge('sec-gutter', ['g_present','g_drip','g_size','g_material']);
+  updateBadge('sec-stain', ['st_deck','st_fence','st_shutters','st_beams']);
+  updateBadge('sec-ac', ['ac_dmg','ac_fins','ac_fan','oth_light','oth_garage']);
+  updateBadge('sec-pool', ['pool_deck','pool_coping','pool_equip','pool_strip']);
+  updateBadge('sec-structures', ['str_shed','str_garage','str_cabana','str_barn']);
+  updateBadge('sec-personal', ['pp_patio','pp_grill','pp_landscape','pp_play']);
+}
+
+function updateBadge(secId, fields) {
+  var filled = fields.filter(function(id) { return getVal(id) !== ''; }).length;
+  var badge = document.getElementById('badge-' + secId);
+  if (!badge) return;
+  badge.textContent = filled + '/' + fields.length;
+  if (filled === fields.length) badge.classList.add('filled');
+  else badge.classList.remove('filled');
+}
+
+function buildReport() {
+  var L = [];
+  L.push('=== STORM DAMAGE SUPPLEMENT REPORT ===\n');
+  L.push('ADDRESS: ' + getVal('ji_address'));
+  L.push('CITY/STATE/ZIP: ' + getVal('ji_city'));
+  L.push('INSURED: ' + getVal('ji_insured'));
+  L.push('CLAIM #: ' + getVal('ji_claim'));
+  L.push('INSPECTOR: ' + getVal('ji_inspector'));
+  L.push('DATE: ' + getVal('ji_date'));
+  L.push('\n--- ROOF ---');
+  var rtype = getVal('r_type_sel');
+  L.push('Roof Type: ' + rtype + (rtype.startsWith('Metal') ? ' | Gauge: ' + getVal('r_metal_gauge') : ''));
+  L.push('Stories: ' + getVal('r_stories') + ' | Difficult Access: ' + getVal('r_access') + m('r_access_m'));
+  L.push('Gable Cornice Returns: ' + getVal('r_gcr') + m('r_gcr_m'));
+  L.push('Cornice Strip: ' + getVal('r_corstrip') + m('r_corstrip_m'));
+  L.push('Aluminum Fascia: ' + getVal('r_alfascia') + m('r_alfascia_m'));
+  L.push('Turret Cap Custom Bent: ' + getVal('r_turret') + m('r_turret_m'));
+  L.push('Drip Edge: ' + getVal('r_drip') + ' | Painted: ' + getVal('r_drip_paint') + m('r_drip_paint_m'));
+  L.push('Underlayment: ' + getVal('r_under') + ' | Layers: ' + getVal('r_layers'));
+  L.push('Pitch - F:' + getVal('r_pitch_f') + ' R:' + getVal('r_pitch_r') + ' L:' + getVal('r_pitch_l') + ' Rt:' + getVal('r_pitch_rt'));
+  L.push('Valley: ' + getVal('r_valley') + ' | Hip & Ridge: ' + getVal('r_ridge'));
+  L.push('Metal Panel: ' + getVal('r_metal') + m('r_metal_m') + ' | Type: ' + getVal('r_metal_type'));
+  L.push('Step Flashing: ' + getVal('r_step') + m('r_step_m') + ' | Counter: ' + getVal('r_counter') + m('r_counter_m') + ' | Cap: ' + getVal('r_cap') + m('r_cap_m'));
+  L.push('Rain Diverters: ' + getVal('r_rainDiv') + m('r_rainDiv_m'));
+  L.push('Ridge Vents: ' + getVal('r_ridgeVent') + m('r_ridgeVent_m') + ' | Intake Vent: ' + getVal('r_intake') + m('r_intake_m'));
+  L.push('Turbines: ' + getVal('r_turbines') + ' | Turtle Vents: ' + getVal('r_turtle') + ' | Exhaust Caps: ' + getVal('r_exhaust'));
+  L.push('Power Attic Vents: ' + getVal('r_pav') + ' | Dryer Vent: ' + getVal('r_dryer') + m('r_dryer_m'));
+  L.push('Other Vents: ' + getVal('r_otherVent') + m('r_otherVent_m'));
+  L.push('Pipe Jacks: ' + getVal('r_pj_type') + ' x' + getVal('r_pj_count'));
+  L.push('Skylight: ' + getVal('r_sky') + m('r_sky_m') + ' | Cracked: ' + getVal('r_sky_crack') + m('r_sky_crack_m'));
+  L.push('Solar Panels: ' + getVal('r_solar') + m('r_solar_sqft') + ' | Satellite: ' + getVal('r_sat') + m('r_sat_m'));
+  L.push('Flat Roof/Pergola: ' + getVal('r_flat') + m('r_flat_m'));
+  L.push('Chimney - Flashing:' + getVal('r_chim_fl') + m('r_chim_fl_m') + ' Chase:' + getVal('r_chim_ch') + m('r_chim_ch_m') + ' Flue Cap:' + getVal('r_chim_fc') + m('r_chim_fc_m') + ' Shroud:' + getVal('r_chim_sh') + m('r_chim_sh_m'));
+  L.push('Interior Leak: ' + getVal('r_int') + m('r_int_m') + ' | Content Removal: ' + getVal('r_content') + m('r_content_m'));
+  L.push('Gas Lines: ' + getVal('r_gas') + m('r_gas_m') + ' | AC Pipes: ' + getVal('r_acpipes') + m('r_acpipes_m'));
+  L.push('Roofing Permit: ' + getVal('r_permit') + m('r_permit_m'));
+  L.push('\n--- EXTERIOR ---');
+  L.push('Siding: ' + getVal('ext_siding') + m('ext_siding_m') + ' | Stucco: ' + getVal('ext_stucco') + m('ext_stucco_m'));
+  L.push('Aluminum Window Wraps: ' + getVal('ext_winwrap') + m('ext_winwrap_m') + ' | Awning: ' + getVal('ext_awning') + m('ext_awning_m'));
+  L.push('\n--- WINDOWS & GLASS ---');
+  L.push('Window Frame: ' + getVal('win_frame') + m('win_frame_m') + ' | Material: ' + getVal('win_frame_mat'));
+  L.push('Glass: ' + getVal('win_glass') + m('win_glass_m'));
+  L.push('Solar Screens: ' + getVal('sc_solar') + m('sc_solar_m') + ' | Regular: ' + getVal('sc_reg') + m('sc_reg_m') + ' | Total: ' + getVal('sc_count'));
+  L.push('\n--- GUTTERS ---');
+  L.push('Gutters: ' + getVal('g_present') + m('g_present_m') + ' | To Drip Edge: ' + getVal('g_drip') + ' | Size: ' + getVal('g_size') + ' | Material: ' + getVal('g_material'));
+  L.push('Downspouts: ' + getVal('g_ds') + m('g_ds_m') + ' | Count: ' + getVal('g_ds_count'));
+  L.push('\n--- STAIN / WOOD ---');
+  L.push('Deck: ' + getVal('st_deck') + m('st_deck_m') + ' | Shutters: ' + getVal('st_shutters') + m('st_shutters_m') + ' | Beams: ' + getVal('st_beams') + m('st_beams_m'));
+  L.push('Fence: ' + getVal('st_fence') + m('st_fence_m') + ' | Wood Door: ' + getVal('st_wdoor') + m('st_wdoor_m'));
+  L.push('\n--- AC / OTHER ---');
+  L.push('AC: ' + getVal('ac_dmg') + m('ac_dmg_m') + ' | Fins: ' + getVal('ac_fins') + m('ac_fins_m') + ' | Fan Guard: ' + getVal('ac_fan') + m('ac_fan_m'));
+  L.push('Light Fixtures: ' + getVal('oth_light') + m('oth_light_m') + ' | Garage Door: ' + getVal('oth_garage') + m('oth_garage_m'));
+  L.push('\n--- POOL ---');
+  L.push('Deck: ' + getVal('pool_deck') + m('pool_deck_m') + ' | Coping: ' + getVal('pool_coping') + m('pool_coping_m'));
+  L.push('Equipment: ' + getVal('pool_equip') + m('pool_equip_m') + ' | Expansion Strip: ' + getVal('pool_strip') + m('pool_strip_m'));
+  L.push('\n--- OTHER STRUCTURES ---');
+  L.push('Shed: ' + getVal('str_shed') + m('str_shed_m') + ' | Garage: ' + getVal('str_garage') + m('str_garage_m'));
+  L.push('Cabana: ' + getVal('str_cabana') + m('str_cabana_m') + ' | Barn: ' + getVal('str_barn') + m('str_barn_m'));
+  L.push('Other: ' + getVal('str_other') + m('str_other_m'));
+  L.push('\n--- PERSONAL PROPERTY ---');
+  L.push('Patio Furniture: ' + getVal('pp_patio') + m('pp_patio_m') + ' | Grill: ' + getVal('pp_grill') + m('pp_grill_m'));
+  L.push('Landscape: ' + getVal('pp_landscape') + m('pp_landscape_m') + ' | Playground: ' + getVal('pp_play') + m('pp_play_m'));
+  L.push('Other: ' + getVal('pp_other') + m('pp_other_m'));
+  L.push('\n--- PHOTOS ---');
+  ['roof','ground-front','ground-right','ground-rear','ground-left','ac','misc'].forEach(function(sec) {
+    var arr = photos[sec] || [];
+    if (arr.length) L.push(sec.toUpperCase() + ': ' + arr.length + ' photos - ' + arr.map(function(p) { return p.label; }).join(', '));
+  });
+  L.push('\n--- NOTES ---');
+  L.push(getVal('notes_main') || '(none)');
+  return L.join('\n');
+}
+
+function copyReport() {
+  var report = buildReport();
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(report).then(showToast).catch(function() { fallbackCopy(report); });
+  } else {
+    fallbackCopy(report);
+  }
+}
+
+function fallbackCopy(text) {
+  var ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.cssText = 'position:fixed;opacity:0;top:0;left:0';
+  document.body.appendChild(ta);
+  ta.focus(); ta.select();
+  try { document.execCommand('copy'); showToast(); } catch(e) { alert('Copy failed - please copy manually'); }
+  document.body.removeChild(ta);
+}
+
+function showToast() {
+  var t = document.getElementById('toast');
+  if (!t) return;
+  t.classList.add('show');
+  setTimeout(function() { t.classList.remove('show'); }, 2200);
+}
+
+function exportCSV() {
+  function f(id) { return '"' + getVal(id).replace(/"/g, '""') + '"'; }
+  var headers = ['Address','City/State/ZIP','Insured','Claim #','Inspector','Date','Roof Type','Metal Gauge','Stories','Difficult Access','Access Notes','Gable Cornice Returns','GCR Notes','Cornice Strip','Cornice Strip LF','Aluminum Fascia','Fascia Notes','Turret Cap','Turret Notes','Drip Edge','Drip Edge Painted','Drip Edge Notes','Underlayment','Layers','Pitch Front','Pitch Rear','Pitch Left','Pitch Right','Valley','Hip & Ridge','Metal Panel','Metal Panel Notes','Metal Panel Type','Step Flashing','Step Notes','Counter Flashing','Counter Notes','Cap Flashing','Cap Notes','Rain Diverters','Rain Div Notes','Ridge Vents','Ridge Vents LF','Intake Vent','Intake Notes','Turbines','Turtle Vents','Exhaust Caps','Power Attic Vents','Dryer Vent','Dryer Notes','Other Vents','Other Vents Notes','Pipe Jack Type','Pipe Jack Count','Skylight','Skylight Notes','Skylight Cracked','Skylight Cracked Notes','Skylight Flashing','Skylight Flash Notes','Reflective Tubes','Tubes Notes','Solar Panels','Solar Notes','Satellite Dish','Satellite Notes','Flat Roof','Flat Notes','Chimney Flashing','Chimney Flash Notes','Chimney Chase','Chase Notes','Chimney Flue Cap','Flue Cap Notes','Chimney Shroud','Shroud Notes','Interior Leak','Leak Notes','Content Removal','Content Notes','Gas Lines','Gas Notes','AC Pipes','AC Pipe Notes','Roofing Permit','Permit Notes','Siding','Siding Notes','Stucco','Stucco Notes','Window Wraps','Wrap Notes','Awning','Awning Notes','Window Frame','Frame Notes','Frame Material','Glass','Glass Notes','Solar Screens','Solar Screen Notes','Regular Screens','Screen Notes','Total Screens','Gutters','Gutters LF','Gutters Drip Edge','Gutter Size','Gutter Material','Downspouts','Downspout Notes','Downspout Count','Deck','Deck Notes','Shutters','Shutter Notes','Wood Beams','Beam Notes','Fence','Fence Notes','Wood Door','Door Notes','AC Damage','AC Notes','AC Fins','Fins Notes','AC Fan Guard','Fan Notes','Light Fixtures','Fixture Notes','Garage Door','Garage Notes','Pool Deck','Pool Deck Notes','Pool Coping','Coping Notes','Pool Equipment','Equipment Notes','Pool Strip','Strip Notes','Shed','Shed Notes','Det Garage','Det Garage Notes','Cabana','Cabana Notes','Barn','Barn Notes','Other Structure','Other Struct Notes','Patio Furniture','Patio Notes','Grill','Grill Notes','Landscape Art','Landscape Notes','Playground','Playground Notes','Other Property','Other Prop Notes','Roof Photos','Front Photos','Right Photos','Rear Photos','Left Photos','AC Photos','Misc Photos','Notes'];
+  var ids = ['ji_address','ji_city','ji_insured','ji_claim','ji_inspector','ji_date','r_type_sel','r_metal_gauge','r_stories','r_access','r_access_m','r_gcr','r_gcr_m','r_corstrip','r_corstrip_m','r_alfascia','r_alfascia_m','r_turret','r_turret_m','r_drip','r_drip_paint','r_drip_paint_m','r_under','r_layers','r_pitch_f','r_pitch_r','r_pitch_l','r_pitch_rt','r_valley','r_ridge','r_metal','r_metal_m','r_metal_type','r_step','r_step_m','r_counter','r_counter_m','r_cap','r_cap_m','r_rainDiv','r_rainDiv_m','r_ridgeVent','r_ridgeVent_m','r_intake','r_intake_m','r_turbines','r_turtle','r_exhaust','r_pav','r_dryer','r_dryer_m','r_otherVent','r_otherVent_m','r_pj_type','r_pj_count','r_sky','r_sky_m','r_sky_crack','r_sky_crack_m','r_sky_flash','r_sky_flash_m','r_tubes','r_tubes_m','r_solar','r_solar_sqft','r_sat','r_sat_m','r_flat','r_flat_m','r_chim_fl','r_chim_fl_m','r_chim_ch','r_chim_ch_m','r_chim_fc','r_chim_fc_m','r_chim_sh','r_chim_sh_m','r_int','r_int_m','r_content','r_content_m','r_gas','r_gas_m','r_acpipes','r_acpipes_m','r_permit','r_permit_m','ext_siding','ext_siding_m','ext_stucco','ext_stucco_m','ext_winwrap','ext_winwrap_m','ext_awning','ext_awning_m','win_frame','win_frame_m','win_frame_mat','win_glass','win_glass_m','sc_solar','sc_solar_m','sc_reg','sc_reg_m','sc_count','g_present','g_present_m','g_drip','g_size','g_material','g_ds','g_ds_m','g_ds_count','st_deck','st_deck_m','st_shutters','st_shutters_m','st_beams','st_beams_m','st_fence','st_fence_m','st_wdoor','st_wdoor_m','ac_dmg','ac_dmg_m','ac_fins','ac_fins_m','ac_fan','ac_fan_m','oth_light','oth_light_m','oth_garage','oth_garage_m','pool_deck','pool_deck_m','pool_coping','pool_coping_m','pool_equip','pool_equip_m','pool_strip','pool_strip_m','str_shed','str_shed_m','str_garage','str_garage_m','str_cabana','str_cabana_m','str_barn','str_barn_m','str_other','str_other_m','pp_patio','pp_patio_m','pp_grill','pp_grill_m','pp_landscape','pp_landscape_m','pp_play','pp_play_m','pp_other','pp_other_m'];
+  var photoSummaries = ['roof','ground-front','ground-right','ground-rear','ground-left','ac','misc'].map(function(sec) {
+    return '"' + (photos[sec] || []).length + ' photos"';
+  });
+  var csv = headers.map(function(h) { return '"' + h + '"'; }).join(',') + '\n' +
+    ids.map(f).join(',') + ',' + photoSummaries.join(',') + ',' + f('notes_main');
+  var blob = new Blob([csv], { type: 'text/csv' });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = (getVal('ji_address').replace(/[^a-z0-9]/gi,'_').substring(0,30) || 'inspection') + '_supplement.csv';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+
+// -- Google Sheets submission --
+function openSheetsModal() {
+  var modal = document.getElementById('sheets-modal');
+  modal.style.display = 'flex';
+  var saved = localStorage.getItem('sheetsUrl');
+  if (saved) document.getElementById('sheets-url').value = saved;
+  document.getElementById('sheets-status').textContent = '';
+}
+
+function submitToSheets() {
+  var url = document.getElementById('sheets-url').value.trim();
+  if (!url) { 
+    document.getElementById('sheets-status').textContent = 'Please enter your script URL.';
+    document.getElementById('sheets-status').style.color = '#ef4444';
+    return; 
+  }
+  localStorage.setItem('sheetsUrl', url);
+
+  var statusEl = document.getElementById('sheets-status');
+  statusEl.textContent = 'Sending...';
+  statusEl.style.color = 'var(--muted)';
+
+  var data = {
+    address: getVal('ji_address'),
+    city: getVal('ji_city'),
+    insured: getVal('ji_insured'),
+    claim: getVal('ji_claim'),
+    inspector: getVal('ji_inspector'),
+    date: getVal('ji_date'),
+    roofType: getVal('r_type_sel'),
+    metalGauge: getVal('r_metal_gauge'),
+    stories: getVal('r_stories'),
+    difficultAccess: getVal('r_access'),
+    accessNotes: getVal('r_access_m'),
+    underlayment: getVal('r_under'),
+    layers: getVal('r_layers'),
+    pitchFront: getVal('r_pitch_f'),
+    pitchRear: getVal('r_pitch_r'),
+    pitchLeft: getVal('r_pitch_l'),
+    pitchRight: getVal('r_pitch_rt'),
+    valley: getVal('r_valley'),
+    hipRidge: getVal('r_ridge'),
+    dripEdge: getVal('r_drip'),
+    dripEdgePainted: getVal('r_drip_paint'),
+    cornicereturns: getVal('r_gcr'),
+    corniceReturnNotes: getVal('r_gcr_m'),
+    corniceStrip: getVal('r_corstrip'),
+    corniceStripLF: getVal('r_corstrip_m'),
+    alFascia: getVal('r_alfascia'),
+    alFasciaNotes: getVal('r_alfascia_m'),
+    turretCap: getVal('r_turret'),
+    stepFlashing: getVal('r_step'),
+    counterFlashing: getVal('r_counter'),
+    capFlashing: getVal('r_cap'),
+    rainDiverters: getVal('r_rainDiv'),
+    ridgeVents: getVal('r_ridgeVent'),
+    ridgeVentsLF: getVal('r_ridgeVent_m'),
+    intakeVent: getVal('r_intake'),
+    turbines: getVal('r_turbines'),
+    turtleVents: getVal('r_turtle'),
+    exhaustCaps: getVal('r_exhaust'),
+    powerAtticVents: getVal('r_pav'),
+    dryerVent: getVal('r_dryer'),
+    pipeJackType: getVal('r_pj_type'),
+    pipeJackCount: getVal('r_pj_count'),
+    skylight: getVal('r_sky'),
+    skylightNotes: getVal('r_sky_m'),
+    skylightCracked: getVal('r_sky_crack'),
+    skylightFlashing: getVal('r_sky_flash'),
+    reflectiveTubes: getVal('r_tubes'),
+    solarPanels: getVal('r_solar'),
+    solarNotes: getVal('r_solar_sqft'),
+    satelliteDish: getVal('r_sat'),
+    flatRoof: getVal('r_flat'),
+    chimneyFlashing: getVal('r_chim_fl'),
+    chimneyChase: getVal('r_chim_ch'),
+    chimneyFlueCap: getVal('r_chim_fc'),
+    chimneyShroud: getVal('r_chim_sh'),
+    interiorLeak: getVal('r_int'),
+    interiorLeakNotes: getVal('r_int_m'),
+    contentRemoval: getVal('r_content'),
+    contentNotes: getVal('r_content_m'),
+    gasLines: getVal('r_gas'),
+    acPipes: getVal('r_acpipes'),
+    roofingPermit: getVal('r_permit'),
+    siding: getVal('ext_siding'),
+    sidingNotes: getVal('ext_siding_m'),
+    stucco: getVal('ext_stucco'),
+    stuccoNotes: getVal('ext_stucco_m'),
+    windowWraps: getVal('ext_winwrap'),
+    windowWrapNotes: getVal('ext_winwrap_m'),
+    awning: getVal('ext_awning'),
+    windowFrame: getVal('win_frame'),
+    windowFrameNotes: getVal('win_frame_m'),
+    windowFrameMaterial: getVal('win_frame_mat'),
+    glassDamage: getVal('win_glass'),
+    glassNotes: getVal('win_glass_m'),
+    solarScreens: getVal('sc_solar'),
+    regularScreens: getVal('sc_reg'),
+    totalScreens: getVal('sc_count'),
+    gutters: getVal('g_present'),
+    guttersLF: getVal('g_present_m'),
+    guttersDripEdge: getVal('g_drip'),
+    gutterSize: getVal('g_size'),
+    gutterMaterial: getVal('g_material'),
+    downspouts: getVal('g_ds'),
+    downspoutCount: getVal('g_ds_count'),
+    deck: getVal('st_deck'),
+    deckNotes: getVal('st_deck_m'),
+    stormShutters: getVal('st_shutters'),
+    woodenBeams: getVal('st_beams'),
+    fence: getVal('st_fence'),
+    fenceNotes: getVal('st_fence_m'),
+    woodenOverheadDoor: getVal('st_wdoor'),
+    acDamage: getVal('ac_dmg'),
+    acFins: getVal('ac_fins'),
+    acFanGuard: getVal('ac_fan'),
+    lightFixtures: getVal('oth_light'),
+    alGarageDoor: getVal('oth_garage'),
+    poolDeck: getVal('pool_deck'),
+    poolCoping: getVal('pool_coping'),
+    poolEquipment: getVal('pool_equip'),
+    poolExpansionStrip: getVal('pool_strip'),
+    shed: getVal('str_shed'),
+    detachedGarage: getVal('str_garage'),
+    cabana: getVal('str_cabana'),
+    barn: getVal('str_barn'),
+    otherStructure: getVal('str_other'),
+    patioFurniture: getVal('pp_patio'),
+    grill: getVal('pp_grill'),
+    landscapeArt: getVal('pp_landscape'),
+    playgroundEquipment: getVal('pp_play'),
+    otherPersonalProperty: getVal('pp_other'),
+    roofPhotos: (photos['roof'] || []).length,
+    frontPhotos: (photos['ground-front'] || []).length,
+    rightPhotos: (photos['ground-right'] || []).length,
+    rearPhotos: (photos['ground-rear'] || []).length,
+    leftPhotos: (photos['ground-left'] || []).length,
+    acPhotos: (photos['ac'] || []).length,
+    miscPhotos: (photos['misc'] || []).length,
+    notes: getVal('notes_main'),
+    submittedAt: new Date().toISOString()
+  };
+
+  fetch(url, {
+    method: 'POST',
+    mode: 'no-cors',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data)
+  }).then(function() {
+    statusEl.textContent = 'Submitted successfully!';
+    statusEl.style.color = '#22c55e';
+    setTimeout(function() {
+      document.getElementById('sheets-modal').style.display = 'none';
+    }, 1800);
+  }).catch(function(err) {
+    statusEl.textContent = 'Error: ' + err.message;
+    statusEl.style.color = '#ef4444';
+  });
+}
+
+function clearForm() {
+  if (!confirm('Clear all fields and start over?')) return;
+  document.querySelectorAll('input, select, textarea').forEach(function(el) { el.value = ''; });
+  document.querySelectorAll('.yn-btn').forEach(function(b) { b.classList.remove('active-yes','active-no','active-na'); });
+  var gf = document.getElementById('metal_gauge_field');
+  if (gf) gf.style.display = 'none';
+  photos = {};
+  ['roof','ground-front','ground-right','ground-rear','ground-left','ac','misc'].forEach(function(sec) { renderGrid(sec); });
+  updatePhotoBadges();
+  updateProgress();
+}
+</script>
+</body>
+</html>
